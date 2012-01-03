@@ -1,13 +1,5 @@
-var debug = false;
-function log() {
-	if (debug) {
-		console.log.apply(console, arguments);
-	}
-}
-
 function codeToString(f) {
 	args = [];
-	log(arguments);
 	for (var i = 1; i < arguments.length; ++i) {
 		args.push(JSON.stringify(arguments[i]));
 	}
@@ -26,19 +18,27 @@ function injectedJs() {
 	jQuery.fn.suspenders = function (item) {
 		if (item.menu_items) {
 			var data = jQuery.fn.currentData;
-			item.menu_items.splice(7, 0,
-						{
-							title: "Add Album to Playlist",
-							visible: function() {
-								return data.key.indexOf('a') == 0;
-							},
-							action: function() {
-								var copy = jQuery.extend(true, {}, data);
-								copy.key = data.trackKeys;
-								R.Playlists.showAddToPlaylistDialog(copy);
-								return false;
-							}
-						});
+			// Add Add Album to Playlist menu item if this is an Album
+			if(data && data.key && data.key.indexOf('a') === 0) {
+				item.menu_items.splice(3, 0,
+							{
+								title: "Add Album to Playlist",
+								visible: function() {
+									return true;
+								},
+								action: function() {
+									var copy = jQuery.extend(true, {}, data);
+									copy.key = data.trackKeys;
+									R.Playlists.showAddToPlaylistDialog(copy);
+									return false;
+								}
+							});
+			}
+			// This is something new
+			else {
+				//console.log("Data Dump");
+				//console.log(data);
+			}
 		}
 		return jQuery.fn.origSuspenders.call(this, item);
 	};
