@@ -17,27 +17,54 @@ function injectedJs() {
 	jQuery.fn.origSuspenders = jQuery.fn.suspenders;
 	jQuery.fn.suspenders = function (item) {
 		if (item.menu_items) {
-			var data = jQuery.fn.currentData;
-			// Add Add Album to Playlist menu item if this is an Album
-			if(data && data.key && data.key.indexOf('a') === 0) {
-				item.menu_items.splice(3, 0,
-							{
-								title: "Add Album to Playlist",
-								visible: function() {
-									return true;
+			if(jQuery.fn.currentData && jQuery.fn.currentData.key) {
+				var data = jQuery.fn.currentData,
+				datakey = data.key[0];
+				// if this is an Album
+				if(datakey === 'a') {
+					item.menu_items.splice(3, 0,
+								{
+									title: "Add Album to Playlist",
+									visible: function() {
+										return true;
+									},
+									action: function() {
+										var copy = jQuery.extend(true, {}, data);
+										copy.key = data.trackKeys;
+										R.Playlists.showAddToPlaylistDialog(copy);
+										return false;
+									}
+								});
+				}
+				// if this is a Playlist
+				else if(datakey === 'p') {
+					item.menu_items.splice(0, 0,
+								{
+									title: "Fork Playlist",
+									visible: function() {
+										return true;
+									},
+									action: function() {
+										var copy = jQuery.extend(true, {}, data);
+										copy.key = [];
+										for(key in data.tracks) {
+											copy.key.push(data.tracks[key].key);
+										}
+										R.Playlists.showAddToPlaylistDialog(copy);
+										return false;
+									}
 								},
-								action: function() {
-									var copy = jQuery.extend(true, {}, data);
-									copy.key = data.trackKeys;
-									R.Playlists.showAddToPlaylistDialog(copy);
-									return false;
-								}
-							});
-			}
-			// This is something new
-			else {
-				//console.log("Data Dump");
-				//console.log(data);
+								{
+									type: "separator"
+								});
+				}
+				// This is something new
+				else {
+					//console.log("Data Dump");
+					//console.log(this);
+					//console.log(item);
+					//console.log(data);
+				}
 			}
 		}
 		return jQuery.fn.origSuspenders.call(this, item);
