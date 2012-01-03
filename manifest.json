@@ -1,0 +1,15 @@
+{
+   "content_scripts": [ {
+      "all_frames": false,
+      "js": [ "rdio-enhancer.js" ],
+      "matches": [ "http://www.rdio.com/*" ],
+      "run_at": "document_end"
+   } ],
+   "description": "Adds some enhancements to rdio.",
+   "name": "Rdio Enhancer",
+   "icons": {
+   		"48": "48.png",
+   		"128": "128.png"
+   },
+   "version": "0.1"
+}
