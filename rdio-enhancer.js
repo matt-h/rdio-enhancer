@@ -107,6 +107,9 @@ function injectedJs() {
 		var args = arguments[0];
 		//console.log("Request");
 		//console.log(arguments);
+		
+		// The Create/Add to playlist normally only takes one track and puts it in an array.
+		// If we pass an array as the key this catches the array properly and formats it for the request.
 		if (args.method == 'addToPlaylist' || args.method == 'createPlaylist') {
 			var tracks = args.content.tracks;
 			if (tracks.length == 1 && tracks[0] instanceof Array) {
