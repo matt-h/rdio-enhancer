@@ -3,6 +3,7 @@
 set -e
 
 version=$1
+force=$2
 
 package=$(basename $(pwd))
 output_dir=/tmp/$package-$version
