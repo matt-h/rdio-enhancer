@@ -41,6 +41,17 @@ function injectedJs() {
 					if(data.tracks) {
 						item.menu_items.splice(0, 0,
 						{
+							title: "Add to Collection",
+							visible: function() {
+								return true
+							},
+							action: function() {
+								R.Library.add(getKeysFromTracks( data.tracks ));
+								R.Notifications.show('The playlist was added to your collection');
+								return false
+							}
+						},
+						{
 							title: "Fork Playlist",
 							visible: function() {
 								return true;
