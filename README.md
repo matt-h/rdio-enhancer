@@ -20,6 +20,11 @@ To Do
 ================
 * Remove Sort Playlist option on Playlist the user does not have permission to sort.
 	* Right now it tries to run but notifies of no permission
+* Reload Playlist after it is sorted
+* Import Spotify playlists
+* Save current queue as a playlist
+* Remove duplicates from playlists
+* Move song to top of the playlist
 
 
 Thanks
