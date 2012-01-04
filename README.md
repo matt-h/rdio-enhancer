@@ -22,9 +22,8 @@ Thanks
 * release script
 
 [Crystal Project Icons](http://www.everaldo.com/crystal/)
-* Icon wrench/screwdriver
+* Icon files to create icon
 
 [rdio](http://www.rdio.com/)
 * Great music listening service.
-* Borrowed icon for the icon. 
 * Please subscribe to rdio if you use this!
