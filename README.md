@@ -9,6 +9,8 @@ Current Features
 	* Add Album to Playlist
 		* Adds all tracks of the Album to a new or existing Playlist  
 * Playlist Additions
+	* Add Playlist to Collection
+		* Adds all tracks of the Playlist to your collection
 	* Fork Playlist
 		* Adds all tracks of the Playlist to a new or existing Playlist
 	* Sort Playlist
