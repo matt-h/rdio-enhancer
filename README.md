@@ -24,13 +24,16 @@ Thanks
 ================
 
 [rdio extension](http://github.com/fberger/rdio-extension)
+
   * rdio Code Injection
   * "Add Album to Playlist"
   * release script
 
 [Crystal Project Icons](http://www.everaldo.com/crystal/)
+
   * Icon files to create icon
 
 [rdio](http://www.rdio.com/)
+
   * Great music listening service.
   * Please subscribe to rdio if you use this!
