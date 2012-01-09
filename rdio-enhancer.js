@@ -9,6 +9,8 @@ function codeToString(f) {
 function injectedJs() {
 	jQuery.fn.origAutoSuspenders = jQuery.fn.autoSuspenders;
 	jQuery.fn.autoSuspenders = function(data, item) {
+		//console.log("Auto Suspenders");
+		//console.log(data);
 		jQuery.fn.currentData = data;
 		var result = jQuery.fn.origAutoSuspenders.call(this, data, item);
 		delete jQuery.fn.currentData;
@@ -93,6 +95,65 @@ function injectedJs() {
 							},
 							action: function() {
 								sortPlaylist(data.key, getKeysFromTracks( data.tracks.sort(sortByTrackName) ));
+								return false;
+							}
+						},
+						{
+							type: "separator"
+						},
+						{
+							title: "Remove Duplicates",
+							visible: function() {
+								return true;
+							},
+							action: function() {
+								// This is a bit hackish, but the API doesn't work well.
+								// The removeFromPlaylist function bases more on the index and count than the tracklist
+								// So order matters!!
+								// First we sort they playlist to unique tracks first and then duplicate tracks last.
+								// Then just chop off all the duplicate tracks.
+								// This way we only need one call to removeFromPlaylist to remove all the duplicates.
+								var tracks = getKeysFromTracks( data.tracks );
+								var unique_tracks = [];
+								var duplicate_tracks = [];
+								jQuery.each(tracks, function(index, value) {
+									if(jQuery.inArray(value, unique_tracks) === -1) {
+										unique_tracks.push(value);
+									}
+									else {
+										duplicate_tracks.push(value);
+									}
+								});
+								
+								if(duplicate_tracks.length > 0) {
+									sortPlaylist(data.key, unique_tracks.concat(duplicate_tracks), function(status) {
+										if (status.result) {
+											R.Api.request({
+												method: "removeFromPlaylist",
+												content: {
+													playlist: data.key,
+													index: unique_tracks.length,
+													count: duplicate_tracks.length,
+													tracks: duplicate_tracks
+												},
+												success: function(success_data) {
+													if (success_data.result) {
+														R.Notifications.show('Duplicates have been removed from this playlist. Please reload it to view the changes.');
+													}
+													else {
+														R.Notifications.show('You do not have permission to remove duplicates from this playlist.');
+													}
+												}
+											});
+										}
+										else {
+											R.Notifications.show('You do not have permission to remove duplicates from this playlist.');
+										}
+									});
+								}
+								else {
+									R.Notifications.show('There are no duplicates to remove.');
+								}
 								return false;
 							}
 						},
@@ -183,22 +244,25 @@ function injectedJs() {
 		}
 	},
 	
-	//
-	sortPlaylist = function(key, tracks) {
-		R.Api.request({
-			method:"setPlaylistOrder",
-			content: {
-				playlist:key,
-				tracks:tracks
-			},
-			success: function(status) {
+	// Sort playlist
+	sortPlaylist = function(key, tracks, callback) {
+		if(typeof(callback) === "undefined") {
+			callback = function(status) {
 				if (status.result) {
 					R.Notifications.show('The playlist has been sorted successfully. Please reload it to view the changes.');
 				}
 				else {
 					R.Notifications.show('You do not have permission to sort this playlist.');
 				}
-			}
+			};
+		}
+		R.Api.request({
+			method:"setPlaylistOrder",
+			content: {
+				playlist:key,
+				tracks:tracks
+			},
+			success: callback
 		});
 	},
 	

@@ -15,6 +15,7 @@ Current Features
 		* Adds all tracks of the Playlist to a new or existing Playlist
 	* Sort Playlist
 		* Sort by Artist, Album, or Track Name
+	* Remove duplicates from Playlists
     
 To Do
 ================
@@ -23,7 +24,6 @@ To Do
 * Reload Playlist after it is sorted
 * Import Spotify playlists
 * Save current queue as a playlist
-* Remove duplicates from playlists
 * Move song to top of the playlist
 
 
