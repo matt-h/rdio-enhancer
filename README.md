@@ -16,6 +16,7 @@ Current Features
 	* Sort Playlist
 		* Sort by Artist, Album, or Track Name
 	* Remove duplicates from Playlists
+	* Move song to top of the playlist
     
 To Do
 ================
@@ -24,7 +25,6 @@ To Do
 * Reload Playlist after it is sorted
 * Import Spotify playlists
 * Save current queue as a playlist
-* Move song to top of the playlist
 
 
 Thanks

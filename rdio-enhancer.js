@@ -162,6 +162,35 @@ function injectedJs() {
 						});
 					}
 				}
+				// if this is a Track
+				else if(datakey === 't') {
+					var this_track = this;
+					item.menu_items.splice(0, 0,
+					{
+						title: "Move Track to Top",
+						visible: function() {
+							// Check if we're on a playlist
+							return $(this_track).parents(".playlist_song_list").length > 0;
+						},
+						action: function() {
+							var track = $(this).closest(".track_container");
+							track.slideUp(function() {
+								track.prependTo(R.Playlists.songList).slideDown();
+								if (R.Playlists.updateOrder()) {
+									R.Playlists.renumberTracks();
+									R.Api.request({
+										method: "setPlaylistOrder",
+										content: {
+											playlist: R.Playlists.playlist.key,
+											tracks: R.Playlists.playlistOrder
+										}
+									});
+								}
+							});
+							return false;
+						}
+					});
+				}
 				// This is something new
 				else {
 					//console.log("Data Dump");
