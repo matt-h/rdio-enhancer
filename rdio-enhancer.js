@@ -108,9 +108,9 @@ function injectedJs() {
 							},
 							action: function() {
 								// This is a bit hackish, but the API doesn't work well.
-								// The removeFromPlaylist function bases more on the index and count than the tracklist
+								// The removeFromPlaylist function is based more on the index and count than the tracklist
 								// So order matters!!
-								// First we sort they playlist to unique tracks first and then duplicate tracks last.
+								// First we sort the playlist to unique tracks first and then duplicate tracks last.
 								// Then just chop off all the duplicate tracks.
 								// This way we only need one call to removeFromPlaylist to remove all the duplicates.
 								var tracks = getKeysFromTracks( data.tracks );
