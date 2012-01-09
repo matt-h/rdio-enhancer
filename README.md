@@ -27,6 +27,14 @@ To Do
 * Save current queue as a playlist
 
 
+Changelog
+================
+v 1.3
+
+* New features
+	* Remove duplicates from Playlists
+	* Move song to top of the playlist
+
 Thanks
 ================
 
