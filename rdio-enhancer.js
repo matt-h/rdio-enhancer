@@ -1,5 +1,5 @@
 function codeToString(f) {
-	args = [];
+	var args = [];
 	for (var i = 1; i < arguments.length; ++i) {
 		args.push(JSON.stringify(arguments[i]));
 	}
@@ -45,12 +45,12 @@ function injectedJs() {
 						{
 							title: "Add to Collection",
 							visible: function() {
-								return true
+								return true;
 							},
 							action: function() {
 								R.Library.add(getKeysFromTracks( data.tracks ));
 								R.Notifications.show('The playlist was added to your collection');
-								return false
+								return false;
 							}
 						},
 						{
@@ -297,7 +297,7 @@ function injectedJs() {
 
 	getKeysFromTracks = function(tracks) {
 		var keys = [];
-		for(key in tracks) {
+		for(var key in tracks) {
 			keys.push(tracks[key].key);
 		}
 		return keys;
@@ -320,7 +320,7 @@ function injectedJs() {
 	jQuery("body").delegate(".add_station_to_playlist", "click", function() {
 		var tracks = [];
 		jQuery(".source_station .track, .now_playing .track").each(function() {
-			tracks.push($(this).attr("track_key"))
+			tracks.push($(this).attr("track_key"));
 		});
 		if(tracks.length > 0) {
 			var data = {
@@ -337,11 +337,11 @@ function injectedJs() {
 		jQuery(".now_playing .tracks, .queue .tracks").each(function() {
 			var source = $(this).attr("skey");
 			if(source[0] === "t") {
-				tracks.push(source)
+				tracks.push(source);
 			}
 		});
 		jQuery(".queue .track").each(function() {
-			tracks.push($(this).attr("track_key"))
+			tracks.push($(this).attr("track_key"));
 		});
 		if(tracks.length > 0) {
 			var data = {
