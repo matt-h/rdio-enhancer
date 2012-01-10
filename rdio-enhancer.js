@@ -21,9 +21,9 @@ function injectedJs() {
 		if (item.menu_items) {
 			if(jQuery.fn.currentData && jQuery.fn.currentData.key) {
 				var data = jQuery.fn.currentData,
-				datakey = data.key[0];
+				datatype = data.type;
 				// if this is an Album
-				if(datakey === 'a') {
+				if(datatype === 'a') {
 					item.menu_items.splice(3, 0,
 					{
 						title: "Add Album to Playlist",
@@ -39,7 +39,7 @@ function injectedJs() {
 					});
 				}
 				// if this is a Playlist
-				else if(datakey === 'p') {
+				else if(datatype === 'p') {
 					if(data.tracks) {
 						item.menu_items.splice(0, 0,
 						{
@@ -124,7 +124,7 @@ function injectedJs() {
 										duplicate_tracks.push(value);
 									}
 								});
-								
+
 								if(duplicate_tracks.length > 0) {
 									sortPlaylist(data.key, unique_tracks.concat(duplicate_tracks), function(status) {
 										if (status.result) {
@@ -163,7 +163,7 @@ function injectedJs() {
 					}
 				}
 				// if this is a Track
-				else if(datakey === 't') {
+				else if(datatype === 't') {
 					var this_track = this;
 					item.menu_items.splice(0, 0,
 					{
@@ -208,7 +208,7 @@ function injectedJs() {
 		var args = arguments[0];
 		//console.log("Request");
 		//console.log(arguments);
-		
+
 		// The Create/Add to playlist normally only takes one track and puts it in an array.
 		// If we pass an array as the key this catches the array properly and formats it for the request.
 		if (args.method == 'addToPlaylist' || args.method == 'createPlaylist') {
@@ -220,7 +220,7 @@ function injectedJs() {
 		}
 		return R.Api.origRequest.apply(this, arguments);
 	};
-	
+
 	// Sort functions
 	var sortByArtist = function(a, b) {
 		var artist_a = a.albumArtist.toLowerCase(),
@@ -272,7 +272,7 @@ function injectedJs() {
 			return 0;
 		}
 	},
-	
+
 	// Sort playlist
 	sortPlaylist = function(key, tracks, callback) {
 		if(typeof(callback) === "undefined") {
@@ -294,7 +294,7 @@ function injectedJs() {
 			success: callback
 		});
 	},
-	
+
 	getKeysFromTracks = function(tracks) {
 		var keys = [];
 		for(key in tracks) {
