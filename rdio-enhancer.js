@@ -302,6 +302,57 @@ function injectedJs() {
 		}
 		return keys;
 	};
+
+	Bujagali.helpers.render_now_playing_header_orig = Bujagali.helpers.render_now_playing_header;
+	Bujagali.helpers.render_now_playing_header = function() {
+		var data = Bujagali.helpers.render_now_playing_header_orig.call(this, arguments);
+		data = data.replace('"now_playing_header">', '"now_playing_header"><a class="add_queue_to_playlist" href="#">Add To Playlist</a>');
+		return data;
+	};
+
+	Bujagali.helpers.render_station_header_orig = Bujagali.helpers.render_station_header;
+	Bujagali.helpers.render_station_header = function() {
+		var data = Bujagali.helpers.render_station_header_orig.call(this, arguments);
+		data = data.replace('station_header">', 'station_header"><a class="add_station_to_playlist" href="#">Add To Playlist</a>');
+		return data;
+	};
+
+	jQuery("body").delegate(".add_station_to_playlist", "click", function() {
+		var tracks = [];
+		jQuery(".source_station .track, .now_playing .track").each(function() {
+			tracks.push($(this).attr("track_key"))
+		});
+		if(tracks.length > 0) {
+			var data = {
+				name: "Station",
+				key: tracks,
+				trackKeys: tracks,
+				length: tracks.length
+			};
+			R.Playlists.showAddToPlaylistDialog(data);
+		}
+	});
+	jQuery("body").delegate(".add_queue_to_playlist", "click", function() {
+		var tracks = [];
+		jQuery(".now_playing .tracks, .queue .tracks").each(function() {
+			var source = $(this).attr("skey");
+			if(source[0] === "t") {
+				tracks.push(source)
+			}
+		});
+		jQuery(".queue .track").each(function() {
+			tracks.push($(this).attr("track_key"))
+		});
+		if(tracks.length > 0) {
+			var data = {
+				name: "Queue",
+				key: tracks,
+				trackKeys: tracks,
+				length: tracks.length
+			};
+			R.Playlists.showAddToPlaylistDialog(data);
+		}
+	});
 }
 
 var script = document.createElement("script");

@@ -1,0 +1,11 @@
+.add_queue_to_playlist, .add_station_to_playlist {
+	display: block;
+	float: right;
+	color: #909397 !important;
+	padding: 0 10px 0 10px;
+	border-left: 1px solid #ADB1B5;
+	box-shadow: 1px 0 3px rgba(255,255,255,1);
+	-webkit-box-shadow: 1px 0 3px rgba(255,255,255,1);
+	border-bottom: 1px solid #ADB1B5;
+	height: 27px;
+}

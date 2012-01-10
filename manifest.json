@@ -2,6 +2,7 @@
    "content_scripts": [ {
       "all_frames": false,
       "js": [ "rdio-enhancer.js" ],
+      "css": [ "rdio-enhancer.css" ],
       "matches": [ "http://www.rdio.com/*" ],
       "run_at": "document_end"
    } ],

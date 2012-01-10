@@ -7,7 +7,7 @@ Current Features
 
 * Album Menu Additons
 	* Add Album to Playlist
-		* Adds all tracks of the Album to a new or existing Playlist  
+		* Adds all tracks of the Album to a new or existing Playlist
 * Playlist Additions
 	* Add Playlist to Collection
 		* Adds all tracks of the Playlist to your collection
@@ -17,18 +17,24 @@ Current Features
 		* Sort by Artist, Album, or Track Name
 	* Remove duplicates from Playlists
 	* Move song to top of the playlist
-    
+* Save current queue or station as a playlist
+	* Still experimental - Works most of the time. Reload the page if having issues. Please report any issues you find and I will try and fix them.
+
 To Do
 ================
 * Remove Sort Playlist option on Playlist the user does not have permission to sort.
 	* Right now it tries to run but notifies of no permission
 * Reload Playlist after it is sorted
 * Import Spotify playlists
-* Save current queue as a playlist
 
 
 Changelog
 ================
+v 1.4
+
+* New features
+	* Save current queue or station as a playlist
+
 v 1.3
 
 * New features
