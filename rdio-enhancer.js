@@ -7,6 +7,9 @@ function codeToString(f) {
 }
 
 function injectedJs() {
+	// Used to store play next items
+	var play_next_queue = [];
+	
 	jQuery.fn.origAutoSuspenders = jQuery.fn.autoSuspenders;
 	jQuery.fn.autoSuspenders = function(data, item) {
 		//console.log("Auto Suspenders");
@@ -190,6 +193,26 @@ function injectedJs() {
 							return false;
 						}
 					});
+					item.menu_items.splice(6, 0,
+					{
+						title: function() {
+							return (isInQueue(data) ? '<span class="coming_up">In Queue</span>Play Next' : "Play Next");
+						},
+						visible: function() {
+							return true;
+						},
+						action: function() {
+							var player = getPlayer();
+							var track = {
+								type: data.type,
+								key: data.key
+							};
+							player._queueSource(track);
+							play_next_queue.push(track);
+							R.Notifications.show(data.name + ' will play next');
+							return false;
+						}
+					});
 				}
 				// This is something new
 				else {
@@ -301,6 +324,31 @@ function injectedJs() {
 			keys.push(tracks[key].key);
 		}
 		return keys;
+	},
+	isInQueue = function(data, queue_type) {
+		if (!player_model || !player_model.queue) {
+			return false;
+		}
+		var m = player_model.queue.length;
+		var key;
+		if (data.key) {
+			key = data.key;
+		}
+		else {
+			key = "" + data.type + data.id;
+		}
+		while (m--) {
+			if (player_model.queue[m].key == key) {
+				if (!queue_type) {
+					return true;
+				}
+				else {
+					if (player_model.queue[m].type == queue_type && player_model.queue[m].secondary_id == data.secondary_id) {
+						return true;
+					}
+				}
+			}
+		}
 	};
 
 	Bujagali.helpers.render_now_playing_header_orig = Bujagali.helpers.render_now_playing_header;
@@ -353,6 +401,26 @@ function injectedJs() {
 			R.Playlists.showAddToPlaylistDialog(data);
 		}
 	});
+
+
+	var queueChanged_orig = queueChanged;
+	queueChanged = function(queue) {
+		if(play_next_queue.length > 0) {
+			console.log("Have Play next");
+			while(play_next_queue.length) {
+				var track = play_next_queue.pop();
+				var i = queue.length;
+				while(i--) {
+					if(queue[i].key === track.key) {
+						getPlayer()._moveQueuedSource(i, 0);
+						break;
+					}
+				}
+			}
+		}
+		return queueChanged_orig(queue);
+	};
+
 }
 
 var script = document.createElement("script");
