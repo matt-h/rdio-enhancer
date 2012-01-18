@@ -40,7 +40,7 @@ Changelog
 v 1.5
 
 * New features
-	* Add Play Next open to everything
+	* Add Play Next option to everything
 	
 v 1.4
 
