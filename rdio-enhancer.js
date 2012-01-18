@@ -206,6 +206,28 @@ function injectedJs() {
 							return false;
 						}
 					});
+					item.menu_items.splice(play_next_insert + 4, 0,
+					{
+						title: "Export to CSV",
+						visible: function() {
+							return true;
+						},
+						action: function() {
+							var i = data.tracks.length;
+							var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
+							while(i--) {
+								csv.push([
+									'"' + data.tracks[i].name + '"',
+									'"' + data.tracks[i].artist + '"',
+									'"' + data.tracks[i].album + '"',
+									data.tracks[i].trackNum
+								].join(","));
+							}
+							window.location = 'data:text/csv;charset=utf8,' + encodeURIComponent(csv.join("\n"));
+							R.Notifications.show(data.name + ' downloaded to CSV. You may need to rename the file to include .csv to open it with your spreadsheet application.');
+							return false;
+						}
+					});
 				}
 				// if this is a Track
 				else if(datatype === 't') {
