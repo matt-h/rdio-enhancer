@@ -42,6 +42,11 @@ To Do
 
 Changelog
 ================
+v 1.6.1
+
+* Fixes
+	* Change all user visable instances of Track to Song
+	
 v 1.6
 
 * New features
