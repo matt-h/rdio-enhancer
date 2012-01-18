@@ -9,17 +9,17 @@ Current Features
 
 * Album Menu Additions
 	* Add Album to Playlist
-		* Adds all tracks of the Album to a new or existing Playlist
+		* Adds all songs of the Album to a new or existing Playlist
 	* Play Next
 		* Same as Play Later but puts the album in the next spot in the queue instead of the last.
-* Track Menu Additions
+* Song Menu Additions
 	* Play Next
-		* Same as Play Later but puts the track in the next spot in the queue instead of the last.
+		* Same as Play Later but puts the song in the next spot in the queue instead of the last.
 * Playlist Additions
 	* Add Playlist to Collection
-		* Adds all tracks of the Playlist to your collection
+		* Adds all songs of the Playlist to your collection
 	* Fork Playlist
-		* Adds all tracks of the Playlist to a new or existing Playlist
+		* Adds all songs of the Playlist to a new or existing Playlist
 	* Sort Playlist
 		* Sort by Artist, Album, or Track Name
 	* Remove duplicates from Playlists
@@ -45,7 +45,7 @@ Changelog
 v 1.6
 
 * New features
-	* Export to CSV
+	* Export Playlists to CSV
 	
 v 1.5
 

@@ -113,7 +113,7 @@ function injectedJs() {
 							}
 						},
 						{
-							title: "Sort Playlist by Track Name",
+							title: "Sort Playlist by Song Name",
 							visible: function() {
 								return true;
 							},
@@ -234,7 +234,7 @@ function injectedJs() {
 					var this_track = this;
 					item.menu_items.splice(0, 0,
 					{
-						title: "Move Track to Top",
+						title: "Move Song to Top",
 						visible: function() {
 							// Check if we're on a playlist
 							return $(this_track).parents(".playlist_song_list").length > 0;
