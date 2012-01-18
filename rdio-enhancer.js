@@ -63,6 +63,7 @@ function injectedJs() {
 				}
 				// if this is a Playlist
 				else if(datatype === 'p') {
+					var play_next_insert = 5;
 					if(data.tracks) {
 						item.menu_items.splice(0, 0,
 						{
@@ -183,7 +184,28 @@ function injectedJs() {
 						{
 							type: "separator"
 						});
+						play_next_insert = 14;
 					}
+					item.menu_items.splice(play_next_insert, 0,
+					{
+						title: function() {
+							return (isInQueue(data) ? '<span class="coming_up">In Queue</span>Play Next' : "Play Next");
+						},
+						visible: function() {
+							return true;
+						},
+						action: function() {
+							var player = getPlayer();
+							var track = {
+								type: data.type,
+								key: data.key
+							};
+							player._queueSource(track);
+							play_next_queue.push(track);
+							R.Notifications.show(data.name + ' will play next');
+							return false;
+						}
+					});
 				}
 				// if this is a Track
 				else if(datatype === 't') {

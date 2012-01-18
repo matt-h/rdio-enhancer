@@ -5,9 +5,14 @@ rdio enhancer
 Current Features
 ================
 
-* Album Menu Additons
+* Album Menu Additions
 	* Add Album to Playlist
 		* Adds all tracks of the Album to a new or existing Playlist
+	* Play Next
+		* Same as Play Later but puts the album in the next spot in the queue instead of the last.
+* Track Menu Additions
+	* Play Next
+		* Same as Play Later but puts the track in the next spot in the queue instead of the last.
 * Playlist Additions
 	* Add Playlist to Collection
 		* Adds all tracks of the Playlist to your collection
@@ -17,6 +22,8 @@ Current Features
 		* Sort by Artist, Album, or Track Name
 	* Remove duplicates from Playlists
 	* Move song to top of the playlist
+	* Play Next
+		* Same as Play Later but puts the playlist in the next spot in the queue instead of the last.
 * Save current queue or station as a playlist
 	* Still experimental - Works most of the time. Reload the page if having issues. Please report any issues you find and I will try and fix them.
 
@@ -30,6 +37,11 @@ To Do
 
 Changelog
 ================
+v 1.5
+
+* New features
+	* Add Play Next open to everything
+	
 v 1.4
 
 * New features
