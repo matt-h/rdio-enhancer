@@ -38,6 +38,9 @@ To Do
 * Reload Playlist after it is sorted
 * Import Spotify playlists
 * Fix Export to CSV so it can save a filename. Need to figure out a new way to do this; Data URIs currently do not support this.
+* Browse by and filter your collection by year
+* Export/Import Playlists
+* Add "Add to Playlist" link to the queue page itself in addition to Queue popup
 
 
 Changelog
