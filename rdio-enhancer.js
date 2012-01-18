@@ -26,7 +26,7 @@ function injectedJs() {
 				var data = jQuery.fn.currentData,
 				datatype = data.type;
 				// if this is an Album
-				if(datatype === 'a') {
+				if(datatype === 'a' || datatype === 'al') {
 					item.menu_items.splice(3, 0,
 					{
 						title: "Add Album to Playlist",
