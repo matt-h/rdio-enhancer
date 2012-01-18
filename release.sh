@@ -3,11 +3,9 @@
 set -e
 
 version=$1
-force=$2
 
 package=$(basename $(pwd))
-output_dir=/tmp/$package-$version
-PRIVATE_KEY=~/chrome-keys/$package.pem
+output_dir=~/tmp/$package-$version
 if [[ ! $version ]]; then
 	echo "Needs a version number as argument"
 	exit 1
@@ -25,7 +23,7 @@ if [[ $(git diff | grep manifest.json) ]]; then
 fi
 
 echo "Tagging locally"
-git tag $force $version
+git tag $version
 
 echo "Pushing tag"
 git push --tags origin master
@@ -41,9 +39,7 @@ cp manifest.json $output_dir
 cp rdio-enhancer.js $output_dir
 cp rdio-enhancer.css $output_dir
 
-echo "Packing for github upload"
-chromium --pack-extension=$output_dir --pack-extension-key=$PRIVATE_KEY
 
-echo "Creating zip file for webstore upload"
+echo "Creating zip file for Chrome webstore upload"
 rm -f $output_dir.zip
 zip -r $output_dir.zip $output_dir
