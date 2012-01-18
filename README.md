@@ -1,6 +1,8 @@
 rdio enhancer
 =================
 
+[Chrome Webstore](https://chrome.google.com/webstore/detail/hmaalfaappddkggilhahaebfhdmmmngf)
+
 
 Current Features
 ================
@@ -24,6 +26,8 @@ Current Features
 	* Move song to top of the playlist
 	* Play Next
 		* Same as Play Later but puts the playlist in the next spot in the queue instead of the last.
+	* Export to CSV
+		* Export the playlist to a CSV file. You may need to rename the file to include .csv to open it with your spreadsheet application.
 * Save current queue or station as a playlist
 	* Still experimental - Works most of the time. Reload the page if having issues. Please report any issues you find and I will try and fix them.
 
@@ -33,10 +37,16 @@ To Do
 	* Right now it tries to run but notifies of no permission
 * Reload Playlist after it is sorted
 * Import Spotify playlists
+* Fix Export to CSV so it can save a filename. Need to figure out a new way to do this; Data URIs currently do not support this.
 
 
 Changelog
 ================
+v 1.6
+
+* New features
+	* Export to CSV
+	
 v 1.5
 
 * New features

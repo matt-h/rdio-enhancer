@@ -6,7 +6,7 @@
       "matches": [ "http://www.rdio.com/*" ],
       "run_at": "document_end"
    } ],
-   "description": "Adds Add Album to Playlist, Sort Playlist, Fork Playlist, Add Playlist to Collection, and more to rdio.com",
+   "description": "Enhances rdio.com with many of the most requested Feature Requests for rdio. View details for full list.",
    "name": "Rdio Enhancer",
    "icons": {
    		"48": "48.png",
