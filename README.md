@@ -45,6 +45,11 @@ To Do
 
 Changelog
 ================
+v 1.6.2
+
+* Fixes
+	* Fix sorting by Artist if the Album Artist is not the same as the track Artist
+	
 v 1.6.1
 
 * Fixes
