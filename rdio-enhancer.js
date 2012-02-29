@@ -310,8 +310,8 @@ function injectedJs() {
 
 	// Sort functions
 	var sortByArtist = function(a, b) {
-		var artist_a = a.albumArtist.toLowerCase(),
-		artist_b = b.albumArtist.toLowerCase();
+		var artist_a = a.artist.toLowerCase(),
+		artist_b = b.artist.toLowerCase();
 		if (artist_a < artist_b) {
 			return -1;
 		}
