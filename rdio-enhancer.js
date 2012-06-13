@@ -10,6 +10,49 @@ function injectedJs() {
 	// Used to store play next items
 	var play_next_queue = [];
 
+	//var playlist_regex = new RegExp("people/[a-zA-Z0-9_-]{3,30}/playlists/\\d+/.*/");
+
+	/*
+	Backbone.Router.prototype.orig_navigate = Backbone.Router.prototype.navigate;
+	Backbone.Router.prototype.navigate = function(a, b) {
+		if(a.match(playlist_regex)) {
+			console.log("Have Playlist");
+		}
+		return Backbone.Router.prototype.orig_navigate.call(this, a, b);
+	}*/
+
+	R.Component.orig_create = R.Component.create;
+	R.Component.create = function(a,b,c) {
+		//console.log("Rdio Enhancer:")
+		//console.log(a);
+
+		if(a == "TrackList") {
+			//console.log(b);
+			b.orig_onRendered = b.onRendered;
+			b.onRendered = function() {
+				b.orig_onRendered.call(this);
+
+				console.log("adding the track magic");
+				console.log(jQuery(".tracklist_toolbar .ActionMenu").length);
+				jQuery(".tracklist_toolbar .ActionMenu").append('<span class="sortpl button"><span class="text">Sort Playlist</span><span class="dropdown_arrow"></span></span>');
+			}
+		}
+		if(a == "PlaylistPage") {
+			//console.log(b);
+			b.orig_onRendered = b.onRendered;
+			b.onRendered = function() {
+				b.orig_onRendered.call(this);
+
+				console.log("adding the pl magic");
+				console.log(jQuery(".tracklist_toolbar .ActionMenu").length);
+				jQuery(".tracklist_toolbar .ActionMenu").append('<span class="sortpl button"><span class="text">Sort Playlist</span><span class="dropdown_arrow"></span></span>');
+			}
+
+		}
+
+		return R.Component.orig_create.call(this, a,b,c);
+	}
+
 	R.Api.origRequest = R.Api.request;
 	R.Api.request = function() {
 		var args = arguments[0];
@@ -149,6 +192,7 @@ function injectedJs() {
 		}
 	};
 }
+
 
 console.log("Load Rdio Enhancer");
 var script = document.createElement("script");
