@@ -122,8 +122,16 @@ function injectedJs() {
 			menu = jQuery('<ul class="enhancer_extras_menu enhancer_menu"><li class="option" title="Remove Duplicates">Remove Duplicates</li></ul>').appendTo("body");
 			menu.find(".option").click(function() {
 				var action = $(this).attr("title");
-				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
 				if(action == "Remove Duplicates") {
+					var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+					var playlist_key = R.enhancer.current_playlist.model.get("key");
+					console.log(playlist_key);
+					// This is a bit hackish, but the API doesn't work well.
+					// The removeFromPlaylist function is based more on the index and count than the tracklist
+					// So order matters!!
+					// First we sort the playlist to unique tracks first and then duplicate tracks last.
+					// Then just chop off all the duplicate tracks.
+					// This way we only need one call to removeFromPlaylist to remove all the duplicates.
 					var unique_tracks = [];
 					var duplicate_tracks = [];
 					jQuery.each(tracks, function(index, value) {
@@ -135,7 +143,25 @@ function injectedJs() {
 							duplicate_tracks.push(track_key);
 						}
 					});
-					console.log(duplicate_tracks.length);
+					if(duplicate_tracks.length > 0) {
+						sortPlaylist(playlist_key, unique_tracks.concat(duplicate_tracks), function(status) {
+							if (status.result) {
+								R.Api.request({
+									method: "removeFromPlaylist",
+									content: {
+										playlist: playlist_key,
+										index: unique_tracks.length,
+										count: duplicate_tracks.length,
+										tracks: duplicate_tracks,
+										extras: "-*, duration, Playlist.PUBLISHED"
+									},
+									success: function(success_data) {
+										R.enhancer.current_playlist.render();
+									}
+								});
+							}
+						});
+					}
 				}
 				R.enhancer.current_actionmenu.HideExtrasMenu();
 			});
@@ -239,7 +265,17 @@ function injectedJs() {
 	},
 
 	// Sort playlist
-	sortPlaylist = function(key, tracks, object) {
+	sortPlaylist = function(key, tracks, callback) {
+		if(typeof(callback) === "undefined") {
+			callback = function(status) {
+				if (status.result) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			};
+		}
 		R.Api.request({
 			method:"setPlaylistOrder",
 			content: {
@@ -247,9 +283,7 @@ function injectedJs() {
 				tracks:tracks,
 				extras: "-*, Playlist.PUBLISHED"
 			},
-			success: function(status) {
-				status.result && a.set(status.result);
-			}
+			success: callback
 		});
 	},
 

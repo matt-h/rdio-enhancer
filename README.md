@@ -10,6 +10,7 @@ Current Features
 * Playlist Additions
 	* Sort Playlist
 		* Sort by Artist, Album, or Song Name
+	* Remove Duplicates
 
 
 To Do
