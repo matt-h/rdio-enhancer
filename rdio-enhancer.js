@@ -24,25 +24,50 @@ function injectedJs() {
 			b.events = function() {
 				var local_events = b.orig_events.call(this);
 				local_events["click .sortpl"] = "onToggleSortMenu";
+				local_events["click .enhancerextras"] = "onToggleExtrasMenu";
 				return local_events;
 			};
 			b.onToggleSortMenu = function(a) {
 				this.ToggleSortMenu(), R.Utils.stopEvent(a);
 			};
 			b.ToggleSortMenu = function() {
-				var menu = R.enhancer.get_sort_menu();
-				menu.object = this;
 				if(this.sort_menu_showing) {
-					menu.hide();
-					this.sort_menu_showing = false;
-					jQuery(".sort_menu_click_shield").hide();
+					this.HideSortMenu();
 				}
 				else {
 					var off = this.$el.offset();
+					var menu = R.enhancer.get_sort_menu();
 					menu.css({top: off.top, left: (off.left + 430) + "px"}).show();
-					jQuery(".sort_menu_click_shield").show();
+					jQuery(".enhancer_menu_click_shield").show();
 					this.sort_menu_showing = true;
 				}
+			};
+			b.HideSortMenu = function() {
+				var menu = R.enhancer.get_sort_menu();
+				menu.hide();
+				this.sort_menu_showing = false;
+				jQuery(".enhancer_menu_click_shield").hide();
+			};
+			b.onToggleExtrasMenu = function(a) {
+				this.ToggleExtrasMenu(), R.Utils.stopEvent(a);
+			};
+			b.ToggleExtrasMenu = function() {
+				if(this.extras_menu_showing) {
+					this.HideExtrasMenu();
+				}
+				else {
+					var off = this.$el.offset();
+					var menu = R.enhancer.get_extras_menu();
+					menu.css({top: off.top, left: (off.left + 530) + "px"}).show();
+					jQuery(".enhancer_menu_click_shield").show();
+					this.extras_menu_showing = true;
+				}
+			};
+			b.HideExtrasMenu = function() {
+				var menu = R.enhancer.get_extras_menu();
+				menu.hide();
+				this.extras_menu_showing = false;
+				jQuery(".enhancer_menu_click_shield").hide();
 			};
 			b.sort_menu_showing = false;
 			b.orig_onRendered = b.onRendered;
@@ -58,6 +83,7 @@ function injectedJs() {
 				b.orig_onRendered.call(this);
 				R.enhancer.current_playlist = this;
 				this.$(".tracklist_toolbar .ActionMenu").append('<span class="sortpl button"><span class="text">Sort Playlist</span><span class="dropdown_arrow"></span></span>');
+				this.$(".tracklist_toolbar .ActionMenu").append('<span class="enhancerextras button"><span class="text">Extras</span><span class="dropdown_arrow"></span></span>');
 			}
 
 		}
@@ -68,11 +94,8 @@ function injectedJs() {
 	R.enhancer.get_sort_menu = function() {
 		var menu = jQuery(".enhancer_sort_menu");
 		if(menu.length < 1) {
-			menu = jQuery('<ul class="enhancer_sort_menu"><li class="option" title="Sort by Artist">Sort by Artist</li><li class="divider"></li><li class="option" title="Sort by Album">Sort by Album</li><li class="divider"></li><li class="option" title="Sort by Song Name">Sort by Song Name</li></ul>').appendTo("body");
-			jQuery('<div class="sort_menu_click_shield"></div>').appendTo("body").click(function() {
-				R.enhancer.current_actionmenu.ToggleSortMenu();
-			});
-			menu.find("li").click(function() {
+			menu = jQuery('<ul class="enhancer_sort_menu enhancer_menu"><li class="option" title="Sort by Artist">Sort by Artist</li><li class="divider"></li><li class="option" title="Sort by Album">Sort by Album</li><li class="divider"></li><li class="option" title="Sort by Song Name">Sort by Song Name</li></ul>').appendTo("body");
+			menu.find(".option").click(function() {
 				var action = $(this).attr("title");
 				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
 				if(action == "Sort by Artist") {
@@ -86,10 +109,49 @@ function injectedJs() {
 				}
 				R.enhancer.current_playlist.model.setPlaylistOrder();
 				R.enhancer.current_playlist.render();
-				R.enhancer.current_actionmenu.ToggleSortMenu();
+				R.enhancer.current_actionmenu.HideSortMenu();
 			});
 		}
+		R.enhancer.get_sheild();
 		return menu;
+	};
+
+	R.enhancer.get_extras_menu = function() {
+		var menu = jQuery(".enhancer_extras_menu");
+		if(menu.length < 1) {
+			menu = jQuery('<ul class="enhancer_extras_menu enhancer_menu"><li class="option" title="Remove Duplicates">Remove Duplicates</li></ul>').appendTo("body");
+			menu.find(".option").click(function() {
+				var action = $(this).attr("title");
+				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+				if(action == "Remove Duplicates") {
+					var unique_tracks = [];
+					var duplicate_tracks = [];
+					jQuery.each(tracks, function(index, value) {
+						var track_key = value.get("key");
+						if(jQuery.inArray(track_key, unique_tracks) === -1) {
+							unique_tracks.push(track_key);
+						}
+						else {
+							duplicate_tracks.push(track_key);
+						}
+					});
+					console.log(duplicate_tracks.length);
+				}
+				R.enhancer.current_actionmenu.HideExtrasMenu();
+			});
+		}
+		R.enhancer.get_sheild();
+		return menu;
+	};
+	R.enhancer.get_sheild = function() {
+		var shield = jQuery(".enhancer_menu_click_shield");
+		if(shield.length < 1) {
+			shield = jQuery('<div class="enhancer_menu_click_shield"></div>').appendTo("body").click(function() {
+				R.enhancer.current_actionmenu.HideSortMenu();
+				R.enhancer.current_actionmenu.HideExtrasMenu();
+			});
+		}
+		return shield;
 	};
 
 	R.Api.origRequest = R.Api.request;

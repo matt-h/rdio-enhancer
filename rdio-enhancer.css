@@ -1,4 +1,4 @@
-.enhancer_sort_menu {
+.enhancer_menu {
 	position: absolute;
 	background: white;
 	display: none;
@@ -21,18 +21,18 @@
 	font-size: 12px;
 	line-height: 24px;
 }
-.enhancer_sort_menu li {
+.enhancer_menu li {
 	list-style-type: none;
 	padding: 0 36px 0 24px;
 	position: relative;
 	white-space: nowrap;
 }
-.enhancer_sort_menu li.option:hover {
+.enhancer_menu li.option:hover {
 	cursor: pointer;
 	background-color: #008FD5;
 	color: white;
 }
-.enhancer_sort_menu li.divider {
+.enhancer_menu li.divider {
 	margin: 6px 0;
 	border-bottom: 1px solid #E1E6E9;
 	font-size: 0;
@@ -41,7 +41,7 @@
 	float: none;
 }
 
-.sort_menu_click_shield {
+.enhancer_menu_click_shield {
 	position: fixed;
 	display: none;
 	z-index: 110;
