@@ -1,11 +1,53 @@
-.add_queue_to_playlist, .add_station_to_playlist {
-	display: block;
-	float: right;
-	color: #909397 !important;
-	padding: 0 10px 0 10px;
-	border-left: 1px solid #ADB1B5;
-	box-shadow: 1px 0 3px rgba(255,255,255,1);
-	-webkit-box-shadow: 1px 0 3px rgba(255,255,255,1);
-	border-bottom: 1px solid #ADB1B5;
-	height: 27px;
+.enhancer_sort_menu {
+	position: absolute;
+	background: white;
+	display: none;
+	z-index: 111;
+	color: #4B5C66;
+	font-size: 12px;
+	margin-left: 2px;
+	line-height: 24px;
+	border: 1px solid #B8C3C9;
+	border: 1px solid rgba(0, 0, 0, 0.25);
+	padding: 6px 0;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-webkit-background-clip: padding-box;
+	background-clip: padding-box;
+	box-shadow: 0 0 5px 0
+	rgba(0, 0, 0, 0.15);
+	-webkit-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.15);
+	color: #4B5C66;
+	font-size: 12px;
+	line-height: 24px;
+}
+.enhancer_sort_menu li {
+	list-style-type: none;
+	padding: 0 36px 0 24px;
+	position: relative;
+	white-space: nowrap;
+}
+.enhancer_sort_menu li.option:hover {
+	cursor: pointer;
+	background-color: #008FD5;
+	color: white;
+}
+.enhancer_sort_menu li.divider {
+	margin: 6px 0;
+	border-bottom: 1px solid #E1E6E9;
+	font-size: 0;
+	line-height: 0;
+	width: auto;
+	float: none;
+}
+
+.sort_menu_click_shield {
+	position: fixed;
+	display: none;
+	z-index: 110;
+	background: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7);
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
 }

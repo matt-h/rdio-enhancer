@@ -9,17 +9,7 @@ function codeToString(f) {
 function injectedJs() {
 	// Used to store play next items
 	var play_next_queue = [];
-
-	//var playlist_regex = new RegExp("people/[a-zA-Z0-9_-]{3,30}/playlists/\\d+/.*/");
-
-	/*
-	Backbone.Router.prototype.orig_navigate = Backbone.Router.prototype.navigate;
-	Backbone.Router.prototype.navigate = function(a, b) {
-		if(a.match(playlist_regex)) {
-			console.log("Have Playlist");
-		}
-		return Backbone.Router.prototype.orig_navigate.call(this, a, b);
-	}*/
+	R.enhancer = {};
 
 	R.Component.orig_create = R.Component.create;
 	R.Component.create = function(a,b,c) {
@@ -27,14 +17,38 @@ function injectedJs() {
 		//console.log(a);
 
 		if(a == "TrackList") {
-			//console.log(b);
+
+		}
+		if(a == "ActionMenu") {
+			b.orig_events = b.events;
+			b.events = function() {
+				var local_events = b.orig_events.call(this);
+				local_events["click .sortpl"] = "onToggleSortMenu";
+				return local_events;
+			};
+			b.onToggleSortMenu = function(a) {
+				this.ToggleSortMenu(), R.Utils.stopEvent(a);
+			};
+			b.ToggleSortMenu = function() {
+				var menu = R.enhancer.get_sort_menu();
+				menu.object = this;
+				if(this.sort_menu_showing) {
+					menu.hide();
+					this.sort_menu_showing = false;
+					jQuery(".sort_menu_click_shield").hide();
+				}
+				else {
+					var off = this.$el.offset();
+					menu.css({top: off.top, left: (off.left + 430) + "px"}).show();
+					jQuery(".sort_menu_click_shield").show();
+					this.sort_menu_showing = true;
+				}
+			};
+			b.sort_menu_showing = false;
 			b.orig_onRendered = b.onRendered;
 			b.onRendered = function() {
 				b.orig_onRendered.call(this);
-
-				console.log("adding the track magic");
-				console.log(jQuery(".tracklist_toolbar .ActionMenu").length);
-				jQuery(".tracklist_toolbar .ActionMenu").append('<span class="sortpl button"><span class="text">Sort Playlist</span><span class="dropdown_arrow"></span></span>');
+				R.enhancer.current_actionmenu = this;
 			}
 		}
 		if(a == "PlaylistPage") {
@@ -42,16 +56,41 @@ function injectedJs() {
 			b.orig_onRendered = b.onRendered;
 			b.onRendered = function() {
 				b.orig_onRendered.call(this);
-
-				console.log("adding the pl magic");
-				console.log(jQuery(".tracklist_toolbar .ActionMenu").length);
-				jQuery(".tracklist_toolbar .ActionMenu").append('<span class="sortpl button"><span class="text">Sort Playlist</span><span class="dropdown_arrow"></span></span>');
+				R.enhancer.current_playlist = this;
+				this.$(".tracklist_toolbar .ActionMenu").append('<span class="sortpl button"><span class="text">Sort Playlist</span><span class="dropdown_arrow"></span></span>');
 			}
 
 		}
 
 		return R.Component.orig_create.call(this, a,b,c);
-	}
+	};
+
+	R.enhancer.get_sort_menu = function() {
+		var menu = jQuery(".enhancer_sort_menu");
+		if(menu.length < 1) {
+			menu = jQuery('<ul class="enhancer_sort_menu"><li class="option" title="Sort by Artist">Sort by Artist</li><li class="divider"></li><li class="option" title="Sort by Album">Sort by Album</li><li class="divider"></li><li class="option" title="Sort by Song Name">Sort by Song Name</li></ul>').appendTo("body");
+			jQuery('<div class="sort_menu_click_shield"></div>').appendTo("body").click(function() {
+				R.enhancer.current_actionmenu.ToggleSortMenu();
+			});
+			menu.find("li").click(function() {
+				var action = $(this).attr("title");
+				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+				if(action == "Sort by Artist") {
+					R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByArtist)});
+				}
+				else if(action == "Sort by Album") {
+					R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByAlbum)});
+				}
+				else if(action == "Sort by Song Name") {
+					R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByTrackName)});
+				}
+				R.enhancer.current_playlist.model.setPlaylistOrder();
+				R.enhancer.current_playlist.render();
+				R.enhancer.current_actionmenu.ToggleSortMenu();
+			});
+		}
+		return menu;
+	};
 
 	R.Api.origRequest = R.Api.request;
 	R.Api.request = function() {
@@ -76,16 +115,16 @@ function injectedJs() {
 		var artist_a,
 		artist_b;
 		if(a.artist) {
-			artist_a = a.artist;
+			artist_a = a.attributes.artist;
 		}
 		else {
-			artist_a = a.albumArtist;
+			artist_a = a.attributes.albumArtist;
 		}
 		if(b.artist) {
-			artist_b = b.artist;
+			artist_b = b.attributes.artist;
 		}
 		else {
-			artist_b = b.albumArtist;
+			artist_b = b.attributes.albumArtist;
 		}
 		artist_a = artist_a.toLowerCase(),
 		artist_b = artist_b.toLowerCase();
@@ -100,8 +139,8 @@ function injectedJs() {
 		}
 	},
 	sortByAlbum = function(a, b) {
-		var album_a = a.album.toLowerCase(),
-		album_b = b.album.toLowerCase();
+		var album_a = a.attributes.album.toLowerCase(),
+		album_b = b.attributes.album.toLowerCase();
 		if (album_a < album_b) {
 			return -1;
 		}
@@ -113,8 +152,8 @@ function injectedJs() {
 		}
 	},
 	sortByTrackName = function(a, b) {
-		var trackname_a = a.name.toLowerCase(),
-		trackname_b = b.name.toLowerCase();
+		var trackname_a = a.attributes.name.toLowerCase(),
+		trackname_b = b.attributes.name.toLowerCase();
 		if (trackname_a < trackname_b) {
 			return -1;
 		}
@@ -126,10 +165,10 @@ function injectedJs() {
 		}
 	},
 	sortByTrackNum = function(a, b) {
-		if (a.trackNum < b.trackNum) {
+		if (a.attributes.trackNum < b.attributes.trackNum) {
 			return -1;
 		}
-		else if (a.trackNum > b.trackNum) {
+		else if (a.attributes.trackNum > b.attributes.trackNum) {
 			return 1;
 		}
 		else {
@@ -138,31 +177,24 @@ function injectedJs() {
 	},
 
 	// Sort playlist
-	sortPlaylist = function(key, tracks, callback) {
-		if(typeof(callback) === "undefined") {
-			callback = function(status) {
-				if (status.result) {
-					R.Notifications.show('The playlist has been sorted successfully. Please reload it to view the changes.');
-				}
-				else {
-					R.Notifications.show('You do not have permission to sort this playlist.');
-				}
-			};
-		}
+	sortPlaylist = function(key, tracks, object) {
 		R.Api.request({
 			method:"setPlaylistOrder",
 			content: {
 				playlist:key,
-				tracks:tracks
+				tracks:tracks,
+				extras: "-*, Playlist.PUBLISHED"
 			},
-			success: callback
+			success: function(status) {
+				status.result && a.set(status.result);
+			}
 		});
 	},
 
 	getKeysFromTracks = function(tracks) {
 		var keys = [];
 		for(var key in tracks) {
-			keys.push(tracks[key].key);
+			keys.push(tracks[key].attributes.key);
 		}
 		return keys;
 	},
@@ -194,9 +226,7 @@ function injectedJs() {
 }
 
 
-console.log("Load Rdio Enhancer");
 var script = document.createElement("script");
 script.type = "text/javascript";
 script.text = codeToString(injectedJs);
 document.body.appendChild(script);
-console.log("Done Load Rdio Enhancer");
