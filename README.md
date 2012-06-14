@@ -11,6 +11,7 @@ Current Features
 	* Sort Playlist
 		* Sort by Artist, Album, or Song Name
 	* Remove Duplicates
+	* Fork Playlist
 
 
 To Do
@@ -20,12 +21,16 @@ To Do
 * Export/Import Playlists
 * Export to CSV
 	* Fix Export to CSV so it can save a filename. Need to figure out a new way to do this; Data URIs currently do not support this.
-* Fork Playlist
-* Remove duplicates
 
 
 Changelog
 ================
+v 2.1
+
+* New Features
+	* Re-implemented remove duplicates from playlists
+	* Re-implemented fork playlists
+
 v 2.0
 
 * New Features

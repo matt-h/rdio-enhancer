@@ -16,6 +16,52 @@ function injectedJs() {
 		//console.log("Rdio Enhancer:")
 		//console.log(a);
 
+		if(a == "Dialog.EditPlaylistDialog") {
+			// Overwrite the existing function since this supports playlists
+			b.createPlaylist = function() {
+				var a = this,
+				b = this.$("input.title").val(),
+				track_list = [];
+				if (!b) {
+					var d = t("You must give your new playlist a title.");
+					a.$(".error_message").html(d).show();
+					return;
+				}
+				if(this.model) {
+					if(this.model.get("type") == "a" || this.model.get("type") == "al") {
+						track_list = this.model.get("trackKeys");
+					}
+					else if(this.model.get("type") == "t") {
+						track_list = [this.model.get("key")];
+					}
+					else if(this.model.get("type") == "p") {
+						track_list = this.model.get("tracks").pluck("key");
+					}
+				}
+				if(track_list.length == 0) {
+					track_list = "";
+				}
+				var e = new R.Models.Playlist({
+					name: b,
+					description: this.$("textarea.description").val(),
+					tracks: track_list
+				});
+				this.$("button").attr("disabled", !0),
+				this.$("input.title").attr("disabled", !0),
+				this.$("textarea.description").attr("disabled", !0);
+				var f = this.$("input:radio[name=playlist_privacy]:checked").val() === "published",
+				g = this.$("input:radio[name=playlist_collaboration]:checked").val();
+				e.save(null, {
+					success: function() {
+						e.setCollaborationMode(g, function() {
+							e.setPublished(f, function() {
+								a.close();
+							});
+						});
+					}
+				});
+			};
+		}
 		if(a == "TrackList") {
 
 		}
@@ -119,7 +165,7 @@ function injectedJs() {
 	R.enhancer.get_extras_menu = function() {
 		var menu = jQuery(".enhancer_extras_menu");
 		if(menu.length < 1) {
-			menu = jQuery('<ul class="enhancer_extras_menu enhancer_menu"><li class="option" title="Remove Duplicates">Remove Duplicates</li><li class="divider"></li><li class="option" title="ForK Playlist">ForK Playlist</li></ul>').appendTo("body");
+			menu = jQuery('<ul class="enhancer_extras_menu enhancer_menu"><li class="option" title="Remove Duplicates">Remove Duplicates</li><li class="divider"></li><li class="option" title="Fork Playlist">Fork Playlist</li></ul>').appendTo("body");
 			menu.find(".option").click(function() {
 				var action = $(this).attr("title");
 				if(action == "Remove Duplicates") {
@@ -179,7 +225,14 @@ function injectedJs() {
 					location.href = window.webkitURL.createObjectURL(blob);
 					//window.open('data:text/csv;charset=utf8,' + encodeURIComponent(csv.join("\n")), "playlist_export.csv", "width=600, height=200");
 				}
-				else if(action == "ForK Playlist") {
+				else if(action == "Fork Playlist") {
+					R.Loader.load(["Dialog.EditPlaylistDialog"], function() {
+						var editor = new R.Components.Dialog.EditPlaylistDialog({
+							model: R.enhancer.current_playlist.model,
+							newPlaylist: true
+						});
+						editor.open()
+					});
 				}
 				R.enhancer.current_actionmenu.HideExtrasMenu();
 			});
