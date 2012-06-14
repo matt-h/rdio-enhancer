@@ -119,13 +119,12 @@ function injectedJs() {
 	R.enhancer.get_extras_menu = function() {
 		var menu = jQuery(".enhancer_extras_menu");
 		if(menu.length < 1) {
-			menu = jQuery('<ul class="enhancer_extras_menu enhancer_menu"><li class="option" title="Remove Duplicates">Remove Duplicates</li></ul>').appendTo("body");
+			menu = jQuery('<ul class="enhancer_extras_menu enhancer_menu"><li class="option" title="Remove Duplicates">Remove Duplicates</li><li class="divider"></li><li class="option" title="ForK Playlist">ForK Playlist</li></ul>').appendTo("body");
 			menu.find(".option").click(function() {
 				var action = $(this).attr("title");
 				if(action == "Remove Duplicates") {
 					var tracks = R.enhancer.current_playlist.model.get("tracks").models;
 					var playlist_key = R.enhancer.current_playlist.model.get("key");
-					console.log(playlist_key);
 					// This is a bit hackish, but the API doesn't work well.
 					// The removeFromPlaylist function is based more on the index and count than the tracklist
 					// So order matters!!
@@ -162,6 +161,25 @@ function injectedJs() {
 							}
 						});
 					}
+				}
+				else if(action == "Export to CSV") {
+					// This almost works.. leaving disabled for now.
+					var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+					var i = tracks.length;
+					var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
+					while(i--) {
+						csv.push([
+							'"' + tracks[i].get("name") + '"',
+							'"' + tracks[i].get("artist") + '"',
+							'"' + tracks[i].get("album") + '"',
+							tracks[i].get("trackNum")
+						].join(","));
+					}
+					var blob = new Blob([csv.join("\n")], { "type" : "text\/csv" });
+					location.href = window.webkitURL.createObjectURL(blob);
+					//window.open('data:text/csv;charset=utf8,' + encodeURIComponent(csv.join("\n")), "playlist_export.csv", "width=600, height=200");
+				}
+				else if(action == "ForK Playlist") {
 				}
 				R.enhancer.current_actionmenu.HideExtrasMenu();
 			});
