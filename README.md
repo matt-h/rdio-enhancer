@@ -25,6 +25,11 @@ To Do
 
 Changelog
 ================
+v 2.1.1
+
+* Fixes
+	* Fixed minor bug in in Sort by Artist not sorting some playlists
+
 v 2.1
 
 * New Features
