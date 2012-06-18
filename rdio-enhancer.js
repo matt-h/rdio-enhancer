@@ -273,13 +273,13 @@ function injectedJs() {
 	var sortByArtist = function(a, b) {
 		var artist_a,
 		artist_b;
-		if(a.artist) {
+		if(a.attributes.artist) {
 			artist_a = a.attributes.artist;
 		}
 		else {
 			artist_a = a.attributes.albumArtist;
 		}
-		if(b.artist) {
+		if(b.attributes.artist) {
 			artist_b = b.attributes.artist;
 		}
 		else {
