@@ -25,6 +25,11 @@ To Do
 
 Changelog
 ================
+v 2.2
+
+* New Features
+	* New notification system since Rdio's built in notification system doesn't exist anymore
+	
 v 2.1.1
 
 * Fixes

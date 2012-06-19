@@ -142,20 +142,23 @@ function injectedJs() {
 		if(menu.length < 1) {
 			menu = jQuery('<ul class="enhancer_sort_menu enhancer_menu"><li class="option" title="Sort by Artist">Sort by Artist</li><li class="divider"></li><li class="option" title="Sort by Album">Sort by Album</li><li class="divider"></li><li class="option" title="Sort by Song Name">Sort by Song Name</li></ul>').appendTo("body");
 			menu.find(".option").click(function() {
+				R.enhancer.current_actionmenu.HideSortMenu();
 				var action = $(this).attr("title");
 				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
 				if(action == "Sort by Artist") {
+					R.enhancer.show_message("Sorted Playlist by Artist");
 					R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByArtist)});
 				}
 				else if(action == "Sort by Album") {
+					R.enhancer.show_message("Sorted Playlist by Album");
 					R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByAlbum)});
 				}
 				else if(action == "Sort by Song Name") {
+					R.enhancer.show_message("Sorted Playlist by Song Name");
 					R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByTrackName)});
 				}
 				R.enhancer.current_playlist.model.setPlaylistOrder();
 				R.enhancer.current_playlist.render();
-				R.enhancer.current_actionmenu.HideSortMenu();
 			});
 		}
 		R.enhancer.get_sheild();
@@ -189,6 +192,7 @@ function injectedJs() {
 						}
 					});
 					if(duplicate_tracks.length > 0) {
+						R.enhancer.show_message("Removing Duplicates");
 						sortPlaylist(playlist_key, unique_tracks.concat(duplicate_tracks), function(status) {
 							if (status.result) {
 								R.Api.request({
@@ -206,6 +210,9 @@ function injectedJs() {
 								});
 							}
 						});
+					}
+					else {
+						R.enhancer.show_message("There are no duplicates to remove");
 					}
 				}
 				else if(action == "Export to CSV") {
@@ -249,6 +256,25 @@ function injectedJs() {
 			});
 		}
 		return shield;
+	};
+	
+	R.enhancer.get_messages = function() {
+		var messages = jQuery(".enhancer_messages");
+		if(messages.length < 1) {
+			messages = jQuery('<div class="enhancer_messages"></div>').appendTo("body");
+			messages.on("click", ".enhancer_message_box", function(event) {
+				$(this).fadeOut("slow", function() {
+					$(this).remove();
+				});
+			});
+		}
+		return messages;
+	};
+	R.enhancer.show_message = function(msg_txt) {
+		var messages = R.enhancer.get_messages();
+		jQuery('<div class="enhancer_message_box">' + msg_txt + '</div>').appendTo(messages).fadeIn("slow").delay(10000).fadeOut("slow", function() {
+			$(this).remove();
+		});;
 	};
 
 	R.Api.origRequest = R.Api.request;
