@@ -7,20 +7,21 @@ function codeToString(f) {
 }
 
 function injectedJs() {
-	
-	// Add a Fisher-Yates shuffle function to Array
-	Array.prototype.shuffle = function (){
-	    var i = this.length, j, temp;
-	    if (i == 0) return;
-	    while (--i) {
-	        j = Math.floor(Math.random() * (i + 1));
+
+    // Add a Fisher-Yates shuffle function to Array
+	Array.prototype.shuffle = function () {
+		var i = this.length, j, temp;
+		if (i == 0) return;
+		while (--i) {
+			j = Math.floor(Math.random() * (i + 1));
+
 			// Swap values
-	        temp = this[i];
-	        this[i] = this[j];
-	        this[j] = temp;
-	    }
+			temp = this[i];
+			this[i] = this[j];
+			this[j] = temp;
+		}
 	};
-	
+
 	// Used to store play next items
 	var play_next_queue = [];
 	R.enhancer = {};
