@@ -7,6 +7,20 @@ function codeToString(f) {
 }
 
 function injectedJs() {
+	
+	// Add a Fisher-Yates shuffle function to Array
+	Array.prototype.shuffle = function (){
+	    var i = this.length, j, temp;
+	    if (i == 0) return;
+	    while (--i) {
+	        j = Math.floor(Math.random() * (i + 1));
+			// Swap values
+	        temp = this[i];
+	        this[i] = this[j];
+	        this[j] = temp;
+	    }
+	};
+	
 	// Used to store play next items
 	var play_next_queue = [];
 	R.enhancer = {};
@@ -140,7 +154,7 @@ function injectedJs() {
 	R.enhancer.get_sort_menu = function() {
 		var menu = jQuery(".enhancer_sort_menu");
 		if(menu.length < 1) {
-			menu = jQuery('<ul class="enhancer_sort_menu enhancer_menu"><li class="option" title="Sort by Artist">Sort by Artist</li><li class="divider"></li><li class="option" title="Sort by Album">Sort by Album</li><li class="divider"></li><li class="option" title="Sort by Song Name">Sort by Song Name</li></ul>').appendTo("body");
+			menu = jQuery('<ul class="enhancer_sort_menu enhancer_menu"><li class="option" title="Sort by Artist">Sort by Artist</li><li class="divider"></li><li class="option" title="Sort by Album">Sort by Album</li><li class="divider"></li><li class="option" title="Sort by Song Name">Sort by Song Name</li><li class="divider"></li><li class="option" title="Randomize">Randomize</li></ul>').appendTo("body");
 			menu.find(".option").click(function() {
 				R.enhancer.current_actionmenu.HideSortMenu();
 				var action = $(this).attr("title");
@@ -156,6 +170,10 @@ function injectedJs() {
 				else if(action == "Sort by Song Name") {
 					R.enhancer.show_message("Sorted Playlist by Song Name");
 					R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByTrackName)});
+				}
+				else if(action == "Randomize") {
+					R.enhancer.show_message("Randomized Playlist")
+					R.enhancer.current_playlist.model.set({"model": tracks.shuffle()});
 				}
 				R.enhancer.current_playlist.model.setPlaylistOrder();
 				R.enhancer.current_playlist.render();
