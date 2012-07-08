@@ -9,7 +9,7 @@ Current Features
 
 * Playlist Additions
 	* Sort Playlist
-		* Sort by Artist, Album, or Song Name
+		* Sort by Artist, Album, or Song Name, Randomize
 	* Remove Duplicates
 	* Fork Playlist
 
@@ -25,11 +25,15 @@ To Do
 
 Changelog
 ================
+v 2.3
+* New Features
+	* Can now Randomize a playlist. Thanks to [TwoSlick](https://github.com/TwoSlick)
+
 v 2.2
 
 * New Features
 	* New notification system since Rdio's built in notification system doesn't exist anymore
-	
+
 v 2.1.1
 
 * Fixes
