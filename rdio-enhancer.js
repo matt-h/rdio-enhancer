@@ -8,7 +8,7 @@ function codeToString(f) {
 
 function injectedJs() {
 
-    // Add a Fisher-Yates shuffle function to Array
+	// Add a Fisher-Yates shuffle function to Array
 	Array.prototype.shuffle = function () {
 		var i = this.length, j, temp;
 		if (i == 0) return;
@@ -276,7 +276,7 @@ function injectedJs() {
 		}
 		return shield;
 	};
-	
+
 	R.enhancer.get_messages = function() {
 		var messages = jQuery(".enhancer_messages");
 		if(messages.length < 1) {
