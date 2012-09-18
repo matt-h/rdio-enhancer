@@ -252,7 +252,7 @@ function injectedJs() {
 					//window.open('data:text/csv;charset=utf8,' + encodeURIComponent(csv.join("\n")), "playlist_export.csv", "width=600, height=200");
 				}
 				else if(action == "Fork Playlist") {
-					R.Loader.load(["Dialog.EditPlaylistDialog"], function() {
+					R.loader.load(["Dialog.EditPlaylistDialog"], function() {
 						var editor = new R.Components.Dialog.EditPlaylistDialog({
 							model: R.enhancer.current_playlist.model,
 							newPlaylist: true
