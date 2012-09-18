@@ -9,7 +9,7 @@ Current Features
 
 * Playlist Additions
 	* Sort Playlist
-		* Sort by Artist, Album, or Song Name, Randomize
+		* Sort by Artist, Album, Song Name, or Randomize
 	* Remove Duplicates
 	* Fork Playlist
 
@@ -25,6 +25,10 @@ To Do
 
 Changelog
 ================
+v 2.3.1
+* Fixes
+	* Fix Fork Playlist
+
 v 2.3
 * New Features
 	* Can now Randomize a playlist. Thanks to [TwoSlick](https://github.com/TwoSlick)
