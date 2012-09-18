@@ -1,5 +1,5 @@
 {
-	"manifest_version": 2,
+	"manifest_version": "2.3.1"
    "content_scripts": [ {
       "all_frames": false,
       "js": [ "rdio-enhancer.js" ],
@@ -13,5 +13,5 @@
    	"48": "48.png",
    	"128": "128.png"
    },
-   "version": "2.3"
+   "version": "2.3.1"
 }
