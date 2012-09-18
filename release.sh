@@ -14,7 +14,7 @@ fi
 echo "Releasing version ${version}"
 
 echo "Setting version number in manifest.json"
-sed -i "s/\"version\":.*/version\": \"${version}\"/" manifest.json
+sed -i "s/\"version\":.*/\"version\": \"${version}\"/" manifest.json
 
 if [[ $(git diff | grep manifest.json) ]]; then
 	echo "Committing changes"
