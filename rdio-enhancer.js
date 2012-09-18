@@ -91,7 +91,8 @@ function injectedJs() {
 			b.onToggleSortMenu = function(a) {
 				this.ToggleSortMenu(), R.Utils.stopEvent(a);
 			};
-			b.ToggleSortMenu = function() {
+			b.ToggleSortMenu = function(a) {
+				/*
 				if(this.sort_menu_showing) {
 					this.HideSortMenu();
 				}
@@ -101,7 +102,67 @@ function injectedJs() {
 					menu.css({top: off.top, left: (off.left + 430) + "px"}).show();
 					jQuery(".enhancer_menu_click_shield").show();
 					this.sort_menu_showing = true;
-				}
+				}*/
+				this.enhancer_sort_menu || (this.checkIsInQueue(), this.enhancer_sort_menu = this.addChild(new
+				R.Components.Menu({
+					positionOverEl: this.$el.find(".sortpl"),
+					defaultContext: this,
+					alignFirstItem: true,
+					model: new Backbone.Collection(this.getSortMenuOptions())
+				})), this.listen(this.enhancer_sort_menu, "open", this.onSortMenuOpened));
+				this.enhancer_sort_menu.toggle(a);
+			};
+			b.getSortMenuOptions = function() {
+				var sort_menu = [{
+						label: "Sort by Artist",
+						value: "sortbyartist",
+						callback: this.sortPlaylistbyArtist,
+						visible: true
+					}, {
+						label: "Sort by Album",
+						value: "sortbyalbum",
+						callback: this.sortPlaylistbyAlbum,
+						visible: true
+					}, {
+						label: "Sort by Song Name",
+						value: "sortbysong",
+						callback: this.sortPlaylistbySong,
+						visible: true
+					}, {
+						label: "Randomize",
+						value: "randomize",
+						callback: this.sortPlaylistRandom,
+						visible: true
+					}];
+				return sort_menu;
+			};
+			b.sortPlaylistbyArtist = function() {
+				R.enhancer.show_message("Sorted Playlist by Artist");
+				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+				R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByArtist)});
+				R.enhancer.current_playlist.model.setPlaylistOrder();
+				R.enhancer.current_playlist.render();
+			};
+			b.sortPlaylistbyAlbum = function() {
+				R.enhancer.show_message("Sorted Playlist by Album");
+				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+				R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByAlbum)});
+				R.enhancer.current_playlist.model.setPlaylistOrder();
+				R.enhancer.current_playlist.render();
+			};
+			b.sortPlaylistbySong = function() {
+				R.enhancer.show_message("Sorted Playlist by Song Name");
+				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+				R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByTrackName)});
+				R.enhancer.current_playlist.model.setPlaylistOrder();
+				R.enhancer.current_playlist.render();
+			};
+			b.sortPlaylistRandom = function() {
+				R.enhancer.show_message("Randomized Playlist")
+				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+				R.enhancer.current_playlist.model.set({"model": tracks.shuffle()});
+				R.enhancer.current_playlist.model.setPlaylistOrder();
+				R.enhancer.current_playlist.render();
 			};
 			b.HideSortMenu = function() {
 				var menu = R.enhancer.get_sort_menu();
@@ -150,38 +211,6 @@ function injectedJs() {
 		}
 
 		return R.Component.orig_create.call(this, a,b,c);
-	};
-
-	R.enhancer.get_sort_menu = function() {
-		var menu = jQuery(".enhancer_sort_menu");
-		if(menu.length < 1) {
-			menu = jQuery('<ul class="enhancer_sort_menu enhancer_menu"><li class="option" title="Sort by Artist">Sort by Artist</li><li class="divider"></li><li class="option" title="Sort by Album">Sort by Album</li><li class="divider"></li><li class="option" title="Sort by Song Name">Sort by Song Name</li><li class="divider"></li><li class="option" title="Randomize">Randomize</li></ul>').appendTo("body");
-			menu.find(".option").click(function() {
-				R.enhancer.current_actionmenu.HideSortMenu();
-				var action = $(this).attr("title");
-				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-				if(action == "Sort by Artist") {
-					R.enhancer.show_message("Sorted Playlist by Artist");
-					R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByArtist)});
-				}
-				else if(action == "Sort by Album") {
-					R.enhancer.show_message("Sorted Playlist by Album");
-					R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByAlbum)});
-				}
-				else if(action == "Sort by Song Name") {
-					R.enhancer.show_message("Sorted Playlist by Song Name");
-					R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByTrackName)});
-				}
-				else if(action == "Randomize") {
-					R.enhancer.show_message("Randomized Playlist")
-					R.enhancer.current_playlist.model.set({"model": tracks.shuffle()});
-				}
-				R.enhancer.current_playlist.model.setPlaylistOrder();
-				R.enhancer.current_playlist.render();
-			});
-		}
-		R.enhancer.get_sheild();
-		return menu;
 	};
 
 	R.enhancer.get_extras_menu = function() {
