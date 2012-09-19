@@ -88,21 +88,12 @@ function injectedJs() {
 				local_events["click .enhancerextras"] = "onToggleExtrasMenu";
 				return local_events;
 			};
+
+			// Inject Sort menu functions
 			b.onToggleSortMenu = function(a) {
 				this.ToggleSortMenu(), R.Utils.stopEvent(a);
 			};
 			b.ToggleSortMenu = function(a) {
-				/*
-				if(this.sort_menu_showing) {
-					this.HideSortMenu();
-				}
-				else {
-					var off = this.$el.offset();
-					var menu = R.enhancer.get_sort_menu();
-					menu.css({top: off.top, left: (off.left + 430) + "px"}).show();
-					jQuery(".enhancer_menu_click_shield").show();
-					this.sort_menu_showing = true;
-				}*/
 				this.enhancer_sort_menu || (this.checkIsInQueue(), this.enhancer_sort_menu = this.addChild(new
 				R.Components.Menu({
 					positionOverEl: this.$el.find(".sortpl"),
@@ -113,7 +104,7 @@ function injectedJs() {
 				this.enhancer_sort_menu.toggle(a);
 			};
 			b.getSortMenuOptions = function() {
-				var sort_menu = [{
+				return [{
 						label: "Sort by Artist",
 						value: "sortbyartist",
 						callback: this.sortPlaylistbyArtist,
@@ -134,7 +125,6 @@ function injectedJs() {
 						callback: this.sortPlaylistRandom,
 						visible: true
 					}];
-				return sort_menu;
 			};
 			b.sortPlaylistbyArtist = function() {
 				R.enhancer.show_message("Sorted Playlist by Artist");
@@ -164,39 +154,124 @@ function injectedJs() {
 				R.enhancer.current_playlist.model.setPlaylistOrder();
 				R.enhancer.current_playlist.render();
 			};
-			b.HideSortMenu = function() {
-				var menu = R.enhancer.get_sort_menu();
-				menu.hide();
-				this.sort_menu_showing = false;
-				jQuery(".enhancer_menu_click_shield").hide();
-			};
+			// End Sort menu functions
+
+			// Inject Extras menu functions
 			b.onToggleExtrasMenu = function(a) {
 				this.ToggleExtrasMenu(), R.Utils.stopEvent(a);
 			};
 			b.ToggleExtrasMenu = function() {
-				if(this.extras_menu_showing) {
-					this.HideExtrasMenu();
+				this.enhancer_extras_menu || (this.checkIsInQueue(), this.enhancer_extras_menu = this.addChild(new
+				R.Components.Menu({
+					positionOverEl: this.$el.find(".enhancerextras"),
+					defaultContext: this,
+					alignFirstItem: true,
+					model: new Backbone.Collection(this.getExtraMenuOptions())
+				})), this.listen(this.enhancer_extras_menu, "open", this.onExtrasMenuOpened));
+				this.enhancer_extras_menu.toggle(a);
+			};
+			b.getExtraMenuOptions = function() {
+				return [{
+						label: "Remove Duplicates",
+						value: "removeduplicates",
+						callback: this.removeDuplicates,
+						visible: true
+					}, {
+						label: "Export to CSV",
+						value: "exporttocsv",
+						callback: this.exportToCSV,
+						visible: false // not visible until this feature works properly
+					}, {
+						label: "Fork Playlist",
+						value: "forkplaylist",
+						callback: this.forkPlaylist,
+						visible: true
+					}, {
+						label: "About Rdio Enhancer",
+						value: "aboutrdioenhancer",
+						callback: this.aboutRdioEnhancer,
+						visible: true
+					}];
+			};
+			b.removeDuplicates = function() {
+				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+				var playlist_key = R.enhancer.current_playlist.model.get("key");
+				// This is a bit hackish, but the API doesn't work well.
+				// The removeFromPlaylist function is based more on the index and count than the tracklist
+				// So order matters!!
+				// First we sort the playlist to unique tracks first and then duplicate tracks last.
+				// Then just chop off all the duplicate tracks.
+				// This way we only need one call to removeFromPlaylist to remove all the duplicates.
+				var unique_tracks = [];
+				var duplicate_tracks = [];
+				jQuery.each(tracks, function(index, value) {
+					var track_key = value.get("key");
+					if(jQuery.inArray(track_key, unique_tracks) === -1) {
+						unique_tracks.push(track_key);
+					}
+					else {
+						duplicate_tracks.push(track_key);
+					}
+				});
+				if(duplicate_tracks.length > 0) {
+					R.enhancer.show_message("Removing Duplicates");
+					sortPlaylist(playlist_key, unique_tracks.concat(duplicate_tracks), function(status) {
+						if (status.result) {
+							R.Api.request({
+								method: "removeFromPlaylist",
+								content: {
+									playlist: playlist_key,
+									index: unique_tracks.length,
+									count: duplicate_tracks.length,
+									tracks: duplicate_tracks,
+									extras: "-*, duration, Playlist.PUBLISHED"
+								},
+								success: function(success_data) {
+									R.enhancer.current_playlist.render();
+								}
+							});
+						}
+					});
 				}
 				else {
-					var off = this.$el.offset();
-					var menu = R.enhancer.get_extras_menu();
-					menu.css({top: off.top, left: (off.left + 530) + "px"}).show();
-					jQuery(".enhancer_menu_click_shield").show();
-					this.extras_menu_showing = true;
+					R.enhancer.show_message("There are no duplicates to remove");
 				}
 			};
-			b.HideExtrasMenu = function() {
-				var menu = R.enhancer.get_extras_menu();
-				menu.hide();
-				this.extras_menu_showing = false;
-				jQuery(".enhancer_menu_click_shield").hide();
+			b.exportToCSV = function() {
+				// This almost works.. leaving disabled for now.
+				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+				var i = tracks.length;
+				var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
+				while(i--) {
+					csv.push([
+						'"' + tracks[i].get("name") + '"',
+						'"' + tracks[i].get("artist") + '"',
+						'"' + tracks[i].get("album") + '"',
+						tracks[i].get("trackNum")
+					].join(","));
+				}
+				var blob = new Blob([csv.join("\n")], { "type" : "text\/csv" });
+				location.href = window.webkitURL.createObjectURL(blob);
+				//window.open('data:text/csv;charset=utf8,' + encodeURIComponent(csv.join("\n")), "playlist_export.csv", "width=600, height=200");
 			};
-			b.sort_menu_showing = false;
+			b.forkPlaylist = function() {
+				R.loader.load(["Dialog.EditPlaylistDialog"], function() {
+					var editor = new R.Components.Dialog.EditPlaylistDialog({
+						model: R.enhancer.current_playlist.model,
+						newPlaylist: true
+					});
+					editor.open()
+				});
+			};
+			b.aboutRdioEnhancer = function() {
+
+			};
+			// End Extras menu functions
+
 			b.orig_onRendered = b.onRendered;
 			b.onRendered = function() {
 				b.orig_onRendered.call(this);
-				R.enhancer.current_actionmenu = this;
-			}
+			};
 		}
 		if(a == "PlaylistPage") {
 			//console.log(b);
@@ -211,99 +286,6 @@ function injectedJs() {
 		}
 
 		return R.Component.orig_create.call(this, a,b,c);
-	};
-
-	R.enhancer.get_extras_menu = function() {
-		var menu = jQuery(".enhancer_extras_menu");
-		if(menu.length < 1) {
-			menu = jQuery('<ul class="enhancer_extras_menu enhancer_menu"><li class="option" title="Remove Duplicates">Remove Duplicates</li><li class="divider"></li><li class="option" title="Fork Playlist">Fork Playlist</li></ul>').appendTo("body");
-			menu.find(".option").click(function() {
-				var action = $(this).attr("title");
-				if(action == "Remove Duplicates") {
-					var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-					var playlist_key = R.enhancer.current_playlist.model.get("key");
-					// This is a bit hackish, but the API doesn't work well.
-					// The removeFromPlaylist function is based more on the index and count than the tracklist
-					// So order matters!!
-					// First we sort the playlist to unique tracks first and then duplicate tracks last.
-					// Then just chop off all the duplicate tracks.
-					// This way we only need one call to removeFromPlaylist to remove all the duplicates.
-					var unique_tracks = [];
-					var duplicate_tracks = [];
-					jQuery.each(tracks, function(index, value) {
-						var track_key = value.get("key");
-						if(jQuery.inArray(track_key, unique_tracks) === -1) {
-							unique_tracks.push(track_key);
-						}
-						else {
-							duplicate_tracks.push(track_key);
-						}
-					});
-					if(duplicate_tracks.length > 0) {
-						R.enhancer.show_message("Removing Duplicates");
-						sortPlaylist(playlist_key, unique_tracks.concat(duplicate_tracks), function(status) {
-							if (status.result) {
-								R.Api.request({
-									method: "removeFromPlaylist",
-									content: {
-										playlist: playlist_key,
-										index: unique_tracks.length,
-										count: duplicate_tracks.length,
-										tracks: duplicate_tracks,
-										extras: "-*, duration, Playlist.PUBLISHED"
-									},
-									success: function(success_data) {
-										R.enhancer.current_playlist.render();
-									}
-								});
-							}
-						});
-					}
-					else {
-						R.enhancer.show_message("There are no duplicates to remove");
-					}
-				}
-				else if(action == "Export to CSV") {
-					// This almost works.. leaving disabled for now.
-					var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-					var i = tracks.length;
-					var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
-					while(i--) {
-						csv.push([
-							'"' + tracks[i].get("name") + '"',
-							'"' + tracks[i].get("artist") + '"',
-							'"' + tracks[i].get("album") + '"',
-							tracks[i].get("trackNum")
-						].join(","));
-					}
-					var blob = new Blob([csv.join("\n")], { "type" : "text\/csv" });
-					location.href = window.webkitURL.createObjectURL(blob);
-					//window.open('data:text/csv;charset=utf8,' + encodeURIComponent(csv.join("\n")), "playlist_export.csv", "width=600, height=200");
-				}
-				else if(action == "Fork Playlist") {
-					R.loader.load(["Dialog.EditPlaylistDialog"], function() {
-						var editor = new R.Components.Dialog.EditPlaylistDialog({
-							model: R.enhancer.current_playlist.model,
-							newPlaylist: true
-						});
-						editor.open()
-					});
-				}
-				R.enhancer.current_actionmenu.HideExtrasMenu();
-			});
-		}
-		R.enhancer.get_sheild();
-		return menu;
-	};
-	R.enhancer.get_sheild = function() {
-		var shield = jQuery(".enhancer_menu_click_shield");
-		if(shield.length < 1) {
-			shield = jQuery('<div class="enhancer_menu_click_shield"></div>').appendTo("body").click(function() {
-				R.enhancer.current_actionmenu.HideSortMenu();
-				R.enhancer.current_actionmenu.HideExtrasMenu();
-			});
-		}
-		return shield;
 	};
 
 	R.enhancer.get_messages = function() {
