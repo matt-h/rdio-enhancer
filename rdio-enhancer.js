@@ -1,5 +1,3 @@
-var port = chrome.extension.connect();
-
 window.addEventListener("message", function(event) {
 	// We only accept messages from ourselves
 	if (event.source != window) {
@@ -47,6 +45,7 @@ function injectedJs() {
 	// Overwrite the playlist add function to support adding playlists to playlists
 	R.Models.Playlist.prototype.add = function(model) {
 		var model_type = model.get("type");
+		var playlist_this = this;
 		if (model_type == "a" || model_type == "al" || model_type == "t" || model_type == "p") {
 			var track_list = null;
 			if(model_type == "a" || model_type == "al") {
@@ -59,23 +58,23 @@ function injectedJs() {
 				track_list = model.get("tracks").pluck("key");
 			}
 
-			if(this.has("tracks")) {
-				this.get("tracks").add(model);
+			if(playlist_this.has("tracks")) {
+				playlist_this.get("tracks").add(model);
 			}
 			var d = {
 				method: "addToPlaylist",
 				content: {
-					playlist: this.get("key"),
+					playlist: playlist_this.get("key"),
 					tracks: track_list,
 					extras: "-*, duration, Playlist.PUBLISHED"
 				},
 				success: function(a) {
-					R.enhancer.show_message(model.get("title"));
-					R.enhancer.show_message(a.result);
-					a.result && this.set(a.result)
+					R.enhancer.show_message('Added "' + model.get("name") + '" to Playlist "' + playlist_this.get("name") + '"');
+					a.result && playlist_this.set(a.result);
+					a[0] && a[0].result && playlist_this.set(a[0].result);
 				}
 			};
-			this._requestQueue.push(d);
+			playlist_this._requestQueue.push(d);
 		}
 	};
 
