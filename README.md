@@ -12,6 +12,7 @@ Current Features
 		* Sort by Artist, Album, Song Name, or Randomize
 	* Remove Duplicates
 	* Fork Playlist
+	* Add playlists to other playlists
 
 
 To Do
@@ -25,6 +26,12 @@ To Do
 
 Changelog
 ================
+v 2.4
+* Fixes
+	* Improve rendering of menu options
+* New Features
+	* Re-implement adding playlists to playlists (Add to Playlist option under add to playlist when viewing playlists)
+
 v 2.3.1
 * Fixes
 	* Fix Fork Playlist
