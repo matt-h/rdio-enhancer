@@ -1,3 +1,17 @@
+var port = chrome.extension.connect();
+
+window.addEventListener("message", function(event) {
+	// We only accept messages from ourselves
+	if (event.source != window) {
+		return;
+	}
+
+	if (event.data.type && (event.data.type == "debug_log")) {
+		console.log(event.data.text);
+	}
+}, false);
+
+
 function codeToString(f) {
 	var args = [];
 	for (var i = 1; i < arguments.length; ++i) {
@@ -26,6 +40,10 @@ function injectedJs() {
 	var play_next_queue = [];
 	R.enhancer = {};
 
+	R.enhancer.log = function(item) {
+		window.postMessage({ type: "debug_log", text: item }, "*");
+	};
+
 	// Overwrite the playlist add function to support adding playlists to playlists
 	R.Models.Playlist.prototype.add = function(model) {
 		var model_type = model.get("type");
@@ -52,6 +70,8 @@ function injectedJs() {
 					extras: "-*, duration, Playlist.PUBLISHED"
 				},
 				success: function(a) {
+					R.enhancer.show_message(model.get("title"));
+					R.enhancer.show_message(a.result);
 					a.result && this.set(a.result)
 				}
 			};
@@ -61,8 +81,8 @@ function injectedJs() {
 
 	R.Component.orig_create = R.Component.create;
 	R.Component.create = function(a,b,c) {
-		//console.log("Rdio Enhancer:")
-		//console.log(a);
+		//R.enhancer.log("Rdio Enhancer:")
+		//R.enhancer.log(a);
 
 		if(a == "Dialog.EditPlaylistDialog") {
 			// Overwrite the existing function since this supports playlists
