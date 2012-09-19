@@ -26,6 +26,39 @@ function injectedJs() {
 	var play_next_queue = [];
 	R.enhancer = {};
 
+	// Overwrite the playlist add function to support adding playlists to playlists
+	R.Models.Playlist.prototype.add = function(model) {
+		var model_type = model.get("type");
+		if (model_type == "a" || model_type == "al" || model_type == "t" || model_type == "p") {
+			var track_list = null;
+			if(model_type == "a" || model_type == "al") {
+				track_list = model.get("trackKeys");
+			}
+			else if(model_type == "t") {
+				track_list = [model.get("key")];
+			}
+			else if(model_type == "p") {
+				track_list = model.get("tracks").pluck("key");
+			}
+
+			if(this.has("tracks")) {
+				this.get("tracks").add(model);
+			}
+			var d = {
+				method: "addToPlaylist",
+				content: {
+					playlist: this.get("key"),
+					tracks: track_list,
+					extras: "-*, duration, Playlist.PUBLISHED"
+				},
+				success: function(a) {
+					a.result && this.set(a.result)
+				}
+			};
+			this._requestQueue.push(d);
+		}
+	};
+
 	R.Component.orig_create = R.Component.create;
 	R.Component.create = function(a,b,c) {
 		//console.log("Rdio Enhancer:")
@@ -87,6 +120,14 @@ function injectedJs() {
 				local_events["click .sortpl"] = "onToggleSortMenu";
 				local_events["click .enhancerextras"] = "onToggleExtrasMenu";
 				return local_events;
+			};
+
+			// Re-enable add to playlist for playlists
+			// I think the only reason this wasn't enabled for playlists was because
+			// it wasn't implemented for Dialog.EditPlaylistDialog
+			// My modification to Dialog.EditPlaylistDialog allows it.
+			b.addToPlaylistItemVisible = function() {
+				return true;
 			};
 
 			// Inject Sort menu functions
