@@ -129,21 +129,21 @@ function injectedJs() {
 			b.sortPlaylistbyArtist = function() {
 				R.enhancer.show_message("Sorted Playlist by Artist");
 				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-				R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByArtist)});
+				R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByArtist)});
 				R.enhancer.current_playlist.model.setPlaylistOrder();
 				R.enhancer.current_playlist.render();
 			};
 			b.sortPlaylistbyAlbum = function() {
 				R.enhancer.show_message("Sorted Playlist by Album");
 				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-				R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByAlbum)});
+				R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByAlbum)});
 				R.enhancer.current_playlist.model.setPlaylistOrder();
 				R.enhancer.current_playlist.render();
 			};
 			b.sortPlaylistbySong = function() {
 				R.enhancer.show_message("Sorted Playlist by Song Name");
 				var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-				R.enhancer.current_playlist.model.set({"model": tracks.sort(sortByTrackName)});
+				R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByTrackName)});
 				R.enhancer.current_playlist.model.setPlaylistOrder();
 				R.enhancer.current_playlist.render();
 			};
@@ -215,7 +215,7 @@ function injectedJs() {
 				});
 				if(duplicate_tracks.length > 0) {
 					R.enhancer.show_message("Removing Duplicates");
-					sortPlaylist(playlist_key, unique_tracks.concat(duplicate_tracks), function(status) {
+					R.enhancer.sortPlaylist(playlist_key, unique_tracks.concat(duplicate_tracks), function(status) {
 						if (status.result) {
 							R.Api.request({
 								method: "removeFromPlaylist",
@@ -334,7 +334,7 @@ function injectedJs() {
 	};
 
 	// Sort functions
-	var sortByArtist = function(a, b) {
+	R.enhancer.sortByArtist = function(a, b) {
 		var artist_a,
 		artist_b;
 		if(a.attributes.artist) {
@@ -358,10 +358,10 @@ function injectedJs() {
 			return 1;
 		}
 		else {
-			return sortByAlbum(a, b);
+			return R.enhancer.sortByAlbum(a, b);
 		}
-	},
-	sortByAlbum = function(a, b) {
+	};
+	R.enhancer.sortByAlbum = function(a, b) {
 		var album_a = a.attributes.album.toLowerCase(),
 		album_b = b.attributes.album.toLowerCase();
 		if (album_a < album_b) {
@@ -371,10 +371,10 @@ function injectedJs() {
 			return 1;
 		}
 		else {
-			return sortByTrackNum(a, b);
+			return R.enhancer.sortByTrackNum(a, b);
 		}
-	},
-	sortByTrackName = function(a, b) {
+	};
+	R.enhancer.sortByTrackName = function(a, b) {
 		var trackname_a = a.attributes.name.toLowerCase(),
 		trackname_b = b.attributes.name.toLowerCase();
 		if (trackname_a < trackname_b) {
@@ -384,10 +384,10 @@ function injectedJs() {
 			return 1;
 		}
 		else {
-			return sortByTrackNum(a, b);
+			return R.enhancer.sortByTrackNum(a, b);
 		}
-	},
-	sortByTrackNum = function(a, b) {
+	};
+	R.enhancer.sortByTrackNum = function(a, b) {
 		if (a.attributes.trackNum < b.attributes.trackNum) {
 			return -1;
 		}
@@ -397,10 +397,10 @@ function injectedJs() {
 		else {
 			return 0;
 		}
-	},
+	};
 
 	// Sort playlist
-	sortPlaylist = function(key, tracks, callback) {
+	R.enhancer.sortPlaylist = function(key, tracks, callback) {
 		if(typeof(callback) === "undefined") {
 			callback = function(status) {
 				if (status.result) {
@@ -420,16 +420,16 @@ function injectedJs() {
 			},
 			success: callback
 		});
-	},
+	};
 
-	getKeysFromTracks = function(tracks) {
+	R.enhancer.getKeysFromTracks = function(tracks) {
 		var keys = [];
 		for(var key in tracks) {
 			keys.push(tracks[key].attributes.key);
 		}
 		return keys;
-	},
-	isInQueue = function(data, queue_type) {
+	};
+	R.enhancer.isInQueue = function(data, queue_type) {
 		if (!player_model || !player_model.queue) {
 			return false;
 		}
