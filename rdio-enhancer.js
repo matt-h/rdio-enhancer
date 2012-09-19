@@ -264,7 +264,15 @@ function injectedJs() {
 				});
 			};
 			b.aboutRdioEnhancer = function() {
-
+				R.loader.load(["Dialog"], function() {
+					var about_enhancer = new R.Components.Dialog({
+						title: "About Rdio Enhancer"
+					});
+					about_enhancer.onOpen = function() {
+						this.$(".body").html('<p>Enhancement features brought to you by <a href="https://chrome.google.com/webstore/detail/hmaalfaappddkggilhahaebfhdmmmngf" target="_blank">Rdio Enhancer</a></p><p>Get the code or browse the code at <a href="https://github.com/matt-h/rdio-enhancer" target="_blank">https://github.com/matt-h/rdio-enhancer</a></p><p>If you like this extension, <a href="https://chrome.google.com/webstore/detail/hmaalfaappddkggilhahaebfhdmmmngf" target="_blank">please rate it here</a></p>');
+					};
+					about_enhancer.open()
+				});
 			};
 			// End Extras menu functions
 
