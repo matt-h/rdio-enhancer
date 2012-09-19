@@ -274,7 +274,7 @@ function injectedJs() {
 					}
 				});
 				if(duplicate_tracks.length > 0) {
-					R.enhancer.show_message("Removing Duplicates");
+					R.enhancer.show_message('Removing Duplicates from "' + R.enhancer.current_playlist.model.get("name") + '"');
 					R.enhancer.sortPlaylist(playlist_key, unique_tracks.concat(duplicate_tracks), function(status) {
 						if (status.result) {
 							R.Api.request({
@@ -294,7 +294,7 @@ function injectedJs() {
 					});
 				}
 				else {
-					R.enhancer.show_message("There are no duplicates to remove");
+					R.enhancer.show_message('There are no duplicates to remove "' + R.enhancer.current_playlist.model.get("name") + '"');
 				}
 			};
 			b.exportToCSV = function() {
