@@ -418,17 +418,17 @@ function injectedJs() {
 	R.enhancer.sortByArtist = function(a, b) {
 		var artist_a,
 		artist_b;
-		if(a.attributes.artist) {
-			artist_a = a.attributes.artist;
+		if(a.attributes.source.attributes.artist) {
+			artist_a = a.attributes.source.attributes.artist;
 		}
 		else {
-			artist_a = a.attributes.albumArtist;
+			artist_a = a.attributes.source.attributes.albumArtist;
 		}
-		if(b.attributes.artist) {
-			artist_b = b.attributes.artist;
+		if(b.attributes.source.attributes.artist) {
+			artist_b = b.attributes.source.attributes.artist;
 		}
 		else {
-			artist_b = b.attributes.albumArtist;
+			artist_b = b.attributes.source.attributes.albumArtist;
 		}
 		artist_a = artist_a.toLowerCase(),
 		artist_b = artist_b.toLowerCase();
@@ -443,8 +443,8 @@ function injectedJs() {
 		}
 	};
 	R.enhancer.sortByAlbum = function(a, b) {
-		var album_a = a.attributes.album.toLowerCase(),
-		album_b = b.attributes.album.toLowerCase();
+		var album_a = a.attributes.source.attributes.album.toLowerCase(),
+		album_b = b.attributes.source.attributes.album.toLowerCase();
 		if (album_a < album_b) {
 			return -1;
 		}
@@ -456,8 +456,8 @@ function injectedJs() {
 		}
 	};
 	R.enhancer.sortByTrackName = function(a, b) {
-		var trackname_a = a.attributes.name.toLowerCase(),
-		trackname_b = b.attributes.name.toLowerCase();
+		var trackname_a = a.attributes.source.attributes.name.toLowerCase(),
+		trackname_b = b.attributes.source.attributes.name.toLowerCase();
 		if (trackname_a < trackname_b) {
 			return -1;
 		}
@@ -469,10 +469,10 @@ function injectedJs() {
 		}
 	};
 	R.enhancer.sortByTrackNum = function(a, b) {
-		if (a.attributes.trackNum < b.attributes.trackNum) {
+		if (a.attributes.source.attributes.trackNum < b.attributes.source.attributes.trackNum) {
 			return -1;
 		}
-		else if (a.attributes.trackNum > b.attributes.trackNum) {
+		else if (a.attributes.source.attributes.trackNum > b.attributes.source.attributes.trackNum) {
 			return 1;
 		}
 		else {
