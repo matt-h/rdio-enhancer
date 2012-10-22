@@ -67,7 +67,7 @@ function injectedJs() {
 		var model_type = model.get("type");
 		var playlist_this = this;
 		if (model_type == "a" || model_type == "al" || model_type == "t" || model_type == "p") {
-			var track_list = null;
+			var track_list = [];
 			if(model_type == "a" || model_type == "al") {
 				track_list = model.get("trackKeys");
 			}
@@ -75,7 +75,10 @@ function injectedJs() {
 				track_list = [model.get("key")];
 			}
 			else if(model_type == "p") {
-				track_list = model.get("tracks").pluck("key");
+				var models = model.get("tracks").models;
+				for(var x = 0; x < models.length; x++) {
+					track_list.push(models[x].attributes.source.attributes.key);
+				}
 			}
 
 			if(playlist_this.has("tracks")) {
