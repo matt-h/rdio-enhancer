@@ -291,7 +291,7 @@ function injectedJs() {
 				var unique_tracks = [];
 				var duplicate_tracks = [];
 				jQuery.each(tracks, function(index, value) {
-					var track_key = value.get("key");
+					var track_key = value.attributes.source.attributes.key;
 					if(jQuery.inArray(track_key, unique_tracks) === -1) {
 						unique_tracks.push(track_key);
 					}
