@@ -122,7 +122,10 @@ function injectedJs() {
 						track_list = [this.model.get("key")];
 					}
 					else if(this.model.get("type") == "p") {
-						track_list = this.model.get("tracks").pluck("key");
+						var models = this.model.get("tracks").models;
+						for(var x = 0; x < models.length; x++) {
+							track_list.push(models[x].attributes.source.attributes.key);
+						}
 					}
 				}
 				if(track_list.length == 0) {
@@ -406,6 +409,7 @@ function injectedJs() {
 		// If we pass an array as the key this catches the array properly and formats it for the request.
 		if (args.method == 'addToPlaylist' || args.method == 'createPlaylist') {
 			var tracks = args.content.tracks;
+			// R.enhancer.log(args.content);
 			if (tracks.length == 1 && tracks[0] instanceof Array) {
 				args.content.tracks = args.content.tracks[0];
 				return R.Api.request(args);
