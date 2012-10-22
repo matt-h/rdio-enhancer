@@ -26,6 +26,10 @@ To Do
 
 Changelog
 ================
+v 2.4.1
+* Fixes
+	* Fix all rdio enhancer features that broke due to the rdio data model changes
+
 v 2.4
 * Fixes
 	* Improve rendering of menu options
