@@ -26,6 +26,10 @@ To Do
 
 Changelog
 ================
+v 2.4.2
+* Fixes
+	* Fix adding to playlist errors from rdio updates
+
 v 2.4.1
 * Fixes
 	* Fix all rdio enhancer features that broke due to the rdio data model changes
