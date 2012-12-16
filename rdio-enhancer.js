@@ -63,6 +63,7 @@ function injectedJs() {
 	};
 
 	// Overwrite the playlist add function to support adding playlists to playlists
+	// From core.rdio.js line 7098
 	R.Models.Playlist.prototype.add = function(model) {
 		var model_type = model.get("type");
 		var playlist_this = this;
@@ -82,14 +83,14 @@ function injectedJs() {
 			}
 
 			if(playlist_this.has("tracks")) {
-				playlist_this.get("tracks").add(model);
+				playlist_this.get("tracks").addSource(model);
 			}
 			var d = {
 				method: "addToPlaylist",
 				content: {
 					playlist: playlist_this.get("key"),
 					tracks: track_list,
-					extras: "-*, duration, Playlist.PUBLISHED"
+					extras: ["-*, duration, Playlist.PUBLISHED"]
 				},
 				success: function(a) {
 					R.enhancer.show_message('Added "' + model.get("name") + '" to Playlist "' + playlist_this.get("name") + '"');
