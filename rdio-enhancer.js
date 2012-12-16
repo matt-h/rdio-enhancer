@@ -107,53 +107,7 @@ function injectedJs() {
 		//R.enhancer.log(a);
 
 		if(a == "Dialog.EditPlaylistDialog") {
-			// Overwrite the existing function since this supports playlists
-			b.createPlaylist = function() {
-				var a = this,
-				b = this.$("input.title").val(),
-				track_list = [];
-				if (!b) {
-					var d = t("You must give your new playlist a title.");
-					a.$(".error_message").html(d).show();
-					return;
-				}
-				if(this.model) {
-					if(this.model.get("type") == "a" || this.model.get("type") == "al") {
-						track_list = this.model.get("trackKeys");
-					}
-					else if(this.model.get("type") == "t") {
-						track_list = [this.model.get("key")];
-					}
-					else if(this.model.get("type") == "p") {
-						var models = this.model.get("tracks").models;
-						for(var x = 0; x < models.length; x++) {
-							track_list.push(models[x].attributes.source.attributes.key);
-						}
-					}
-				}
-				if(track_list.length == 0) {
-					track_list = "";
-				}
-				var e = new R.Models.Playlist({
-					name: b,
-					description: this.$("textarea.description").val(),
-					tracks: track_list
-				});
-				this.$("button").attr("disabled", !0),
-				this.$("input.title").attr("disabled", !0),
-				this.$("textarea.description").attr("disabled", !0);
-				var f = this.$("input:radio[name=playlist_privacy]:checked").val() === "published",
-				g = this.$("input:radio[name=playlist_collaboration]:checked").val();
-				e.save(null, {
-					success: function() {
-						e.setCollaborationMode(g, function() {
-							e.setPublished(f, function() {
-								a.close();
-							});
-						});
-					}
-				});
-			};
+
 		}
 		if(a == "TrackList") {
 
@@ -271,7 +225,7 @@ function injectedJs() {
 						label: "Fork Playlist",
 						value: "forkplaylist",
 						callback: this.forkPlaylist,
-						visible: true
+						visible: false
 					}, {
 						label: "About Rdio Enhancer",
 						value: "aboutrdioenhancer",
@@ -344,7 +298,8 @@ function injectedJs() {
 				R.loader.load(["Dialog.EditPlaylistDialog"], function() {
 					var editor = new R.Components.Dialog.EditPlaylistDialog({
 						model: R.enhancer.current_playlist.model,
-						newPlaylist: true
+						sourceModel: R.enhancer.current_playlist.model,
+						isNew: true
 					});
 					editor.open()
 				});
