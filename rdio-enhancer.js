@@ -107,8 +107,33 @@ function injectedJs() {
 		//R.enhancer.log("Rdio Enhancer:")
 		//R.enhancer.log(a);
 
+		if(a == "Dialog.EditPlaylistDialog.Rdio") {
+			b._getAttributes = function() {
+				var parent_get_attributes = R.Components.Dialog.EditPlaylistDialog.Rdio.callSuper(this, "_getAttributes");
+				if (this.model.isNew()) {
+					var track_list = [],
+						source_model = this.options.sourceModel;
+					if (source_model) {
+						var model_type = source_model.get("type");
+						if(model_type == "a" || model_type == "al") {
+							track_list = source_model.get("trackKeys");
+						}
+						else if(model_type == "t") {
+							track_list = [source_model.get("key")];
+						}
+						else if(model_type == "p") {
+							var models = source_model.get("tracks").models;
+							for(var x = 0; x < models.length; x++) {
+								track_list.push(models[x].attributes.source.attributes.key);
+							}
+						}
+					}
+					parent_get_attributes.tracks = track_list;
+				}
+				return parent_get_attributes;
+			}
+		}
 		if(a == "Dialog.EditPlaylistDialog") {
-
 		}
 		if(a == "TrackList") {
 
@@ -226,7 +251,7 @@ function injectedJs() {
 						label: "Fork Playlist",
 						value: "forkplaylist",
 						callback: this.forkPlaylist,
-						visible: false
+						visible: true
 					}, {
 						label: "About Rdio Enhancer",
 						value: "aboutrdioenhancer",
@@ -296,9 +321,8 @@ function injectedJs() {
 				//window.open('data:text/csv;charset=utf8,' + encodeURIComponent(csv.join("\n")), "playlist_export.csv", "width=600, height=200");
 			};
 			b.forkPlaylist = function() {
-				R.loader.load(["Dialog.EditPlaylistDialog"], function() {
-					var editor = new R.Components.Dialog.EditPlaylistDialog({
-						model: R.enhancer.current_playlist.model,
+				R.loader.load(["Dialog.EditPlaylistDialog.Rdio"], function() {
+					var editor =new R.Components.Dialog.EditPlaylistDialog.Rdio({
 						sourceModel: R.enhancer.current_playlist.model,
 						isNew: true
 					});
