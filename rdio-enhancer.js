@@ -111,7 +111,7 @@ function injectedJs() {
 			b._getAttributes = function() {
 				var parent_get_attributes = R.Components.Dialog.EditPlaylistDialog.Rdio.callSuper(this, "_getAttributes");
 				if (this.model.isNew()) {
-					var track_list = [],
+					var track_list = "",
 						source_model = this.options.sourceModel;
 					if (source_model) {
 						var model_type = source_model.get("type");
@@ -123,6 +123,9 @@ function injectedJs() {
 						}
 						else if(model_type == "p") {
 							var models = source_model.get("tracks").models;
+							if(models.length > 0) {
+								track_list = [];
+							}
 							for(var x = 0; x < models.length; x++) {
 								track_list.push(models[x].attributes.source.attributes.key);
 							}
@@ -386,7 +389,7 @@ function injectedJs() {
 	R.Api.request = function() {
 		var args = arguments[0];
 		//console.log("Request");
-		//console.log(arguments);
+		//R.enhancer.log(arguments);
 
 		// The Create/Add to playlist normally only takes one track and puts it in an array.
 		// If we pass an array as the key this catches the array properly and formats it for the request.
