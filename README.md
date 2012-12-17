@@ -26,6 +26,10 @@ To Do
 
 Changelog
 ================
+v 2.4.3
+* Fixes
+	* Fix Fork Playlist
+
 v 2.4.2
 * Fixes
 	* Fix adding to playlist errors from rdio updates
