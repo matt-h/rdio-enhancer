@@ -26,6 +26,10 @@ To Do
 
 Changelog
 ================
+v 2.4.4
+* Fixes
+	* Fix Regression of the stock create playlists
+
 v 2.4.3
 * Fixes
 	* Fix Fork Playlist
