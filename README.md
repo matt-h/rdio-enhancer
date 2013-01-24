@@ -26,6 +26,12 @@ To Do
 
 Changelog
 ================
+v 2.4.5
+
+* Fixes
+
+	* Fix a loading issue from a race condition with rdio core
+
 v 2.4.4
 
 * Fixes
