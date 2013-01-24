@@ -527,8 +527,9 @@ function injectedJs() {
 	};
 }
 
-
-var script = document.createElement("script");
-script.type = "text/javascript";
-script.text = codeToString(injectedJs);
-document.body.appendChild(script);
+window.setTimeout(function() {
+	var script = document.createElement("script");
+	script.type = "text/javascript";
+	script.text = codeToString(injectedJs);
+	document.body.appendChild(script);
+}, 500);
