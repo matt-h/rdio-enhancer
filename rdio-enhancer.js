@@ -387,8 +387,17 @@ function injectedJs() {
       };
 
       b.onRemoveFromTags = function(tagToRemove) {
+        // TODO Refactoring
         var tags = _.filter(this.getTagsForAlbum(), function(tag) { return tag !== tagToRemove; });
         this.setTags(tags);
+
+        var albumsForTag = window.localStorage[tagToRemove];
+        albumsForTag ? albumsForTag = JSON.parse(albumsForTag) : albumsForTag = [];
+        
+        if (_.contains(albumsForTag, this.model.get("albumKey"))) {
+          albumsForTag = _.filter(albumsForTag, _.bind(function(album) { console.log('album, albumKey', album, this.model.get("albumKey")); return album !== this.model.get("albumKey"); }, this));
+          window.localStorage[tagToRemove] = JSON.stringify(albumsForTag);
+        }
       };
 
       b.getTagsForAlbum = function() {
@@ -404,14 +413,16 @@ function injectedJs() {
 
       b.setTags = function(tags) {
         if (window.localStorage) {
+          // Set the tags for the current albums
           var albumKey = this.model.get("albumKey");
           window.localStorage[albumKey] = JSON.stringify(tags);
-          console.log('tags',tags);
+
+          // For every tags, add the album key to it's list of albums
+          // This will facilitate ease & speed of search by tag
           _.each(tags, _.bind(function(tag) {
-            console.log('tag', tag);
             var albumsForTag = window.localStorage[tag];
             albumsForTag ? albumsForTag = JSON.parse(albumsForTag) : albumsForTag = [];
-            console.log('albumsForTag', albumsForTag);
+
             if (!_.contains(albumsForTag, this.model.get("albumKey"))) {
               albumsForTag.push(this.model.get("albumKey"));
               window.localStorage[tag] = JSON.stringify(albumsForTag);
@@ -431,6 +442,7 @@ function injectedJs() {
           });
 
           dialog.onOpen = function() {
+            // Form with only a textarea allowing the user to enter tags (each separated by a comma)
             this.$(".body").html('<ul class="form_list"><li class="form_row no_line"><div class="label">Tags :<br/>(comma separated)</div><div class="field"><textarea style="height:72px;" class="tags" name="tags"></textarea></div></li></ul>');
             this.$(".body .tags").val(that.getTagsForAlbum());
             this.$(".footer .blue").removeAttr("disabled");
@@ -446,7 +458,7 @@ function injectedJs() {
           dialog.open()
         });
       };
-      
+
       b.manageTagsVisible = function() {
         return this.model.get("type") === "al"
       };
@@ -470,6 +482,56 @@ function injectedJs() {
 
 		}
 
+    if (a == "Profile.Collection") {
+      console.log('a, b', a, b);
+
+      b.getAlbumsForTag = function(tag) {
+        if (window.localStorage) {
+          var value = window.localStorage[tag];
+          if (value) {
+            return JSON.parse(value);
+          }
+        }
+      
+        return [];
+      },
+
+      b.orig_onRendered = b.onRendered;
+      b.onRendered = function() {
+        b.orig_onRendered.call(this);
+        R.enhancer.collection = this;
+
+        this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div><a href="#" class="search_clear"></a></span>');
+        this.$(".tags_filter").on("keyup", _.bind(function() {
+          var value = this.$(".tags_filter").val().trim();
+          var albums = b.getAlbumsForTag(value);
+
+          if (albums.length > 0) {
+            R.enhancer.collection.collectionModel.reset();
+            R.enhancer.collection.collectionModel.on("loaded", function() {
+              R.enhancer.collection.collectionModel.off("loaded");
+              R.enhancer.collection.collectionModel.manualFiltered = true;
+              R.enhancer.collection.collectionModel.reset(R.enhancer.collection.collectionModel.filter(function(model) { return _.contains(albums, model.get("albumKey")); }));
+            });
+            R.enhancer.collection.collectionModel.get({start:R.enhancer.collection.collectionModel.models.length, count:R.enhancer.collection.collectionModel._limit});
+          } else if (R.enhancer.collection.collectionModel.manualFiltered) {
+            R.enhancer.collection.collectionModel.manualFiltered = false;
+            R.enhancer.collection.collectionModel.reset();
+          }
+        }, this));
+      }
+    }
+
+    if (a== "InfiniteScroll") {
+      b.orig_ensureItemsLoaded = b.ensureItemsLoaded;
+      b.ensureItemsLoaded = function() {
+        if (this.model.manualFiltered) {
+          return;
+        }
+        b.orig_ensureItemsLoaded.call(this);
+      }
+    }
+    
 		return R.Component.orig_create.call(this, a,b,c);
 	};
 
