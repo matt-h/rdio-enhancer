@@ -7,6 +7,9 @@ rdio enhancer
 Current Features
 ================
 
+* Collection
+	* Add Tags to Albums (tags are stored in local storage)
+	* Filter by those tags
 * Playlist Additions
 	* Sort Playlist
 		* Sort by Artist, Album, Song Name, or Randomize
@@ -26,6 +29,15 @@ To Do
 
 Changelog
 ================
+v 2.5
+
+* New Features
+
+	* Ability to add tags to albums and filter by those tags. Tags are stored in local storage
+		* This feature was created by Nicolas. Thanks!
+			* https://github.com/cotenoni
+			* https://twitter.com/cotenoni
+
 v 2.4.5
 
 * Fixes
