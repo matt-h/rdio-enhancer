@@ -9,7 +9,7 @@ Current Features
 
 * Collection
 	* Add Tags to Albums (tags are stored in local storage)
-	* Filter by those tags
+	* Filter Collection by tags
 * Playlist Additions
 	* Sort Playlist
 		* Sort by Artist, Album, Song Name, or Randomize
@@ -172,6 +172,14 @@ v 1.3
 
 Thanks
 ================
+
+Nicolas [@cotenoni](https://twitter.com/cotenoni) [GitHub](https://github.com/cotenoni)
+
+  * Add Tags to Albums feature
+
+[TwoSlick](https://github.com/TwoSlick)
+
+  * Randomize Playlist
 
 [rdio extension](http://github.com/fberger/rdio-extension)
 
