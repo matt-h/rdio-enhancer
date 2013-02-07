@@ -407,11 +407,18 @@ function injectedJs() {
 
             // Save the tags when the user click on confirm
             this.$(".footer .blue").on("click", _.bind(function() {
-              var tags = this.$(".body .tags").val().trim().split(",");
-              tags = _.map(tags, function(tag) { return tag.trim(); });
+              var tags = _.map(this.$(".body .tags").val().trim().split(","), function(tag) { return tag.trim(); });
+
+              // Compare with previously set tags - might need to remove some
+              var previousTags = R.enhancer.getTagsForAlbum(that.model.get("albumKey"));
+
+              _.each(_.difference(previousTags, tags), function(removedTag) {
+                R.enhancer.removeTag(removedTag, that.model.get("albumKey"));
+              });
+
               R.enhancer.setTags(tags, that.model.get("albumKey"));
-              this.close();
               that.menuDirty = true;
+              this.close();
             }, this));
           };
           dialog.open()
