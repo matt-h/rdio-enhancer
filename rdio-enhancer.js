@@ -350,7 +350,7 @@ function injectedJs() {
         var options = b.orig_getMenuOptions.call(this);
 
         var tags = [];
-        _.each(this.getTagsForAlbum(), _.bind(function(tag) {
+        _.each(R.enhancer.getTagsForAlbum(this.model.get("albumKey")), _.bind(function(tag) {
           tags.push({
             label: tag,
             value: tag,
@@ -387,51 +387,9 @@ function injectedJs() {
       };
 
       b.onRemoveFromTags = function(tagToRemove) {
-        // TODO Refactoring
-        var tags = _.filter(this.getTagsForAlbum(), function(tag) { return tag !== tagToRemove; });
-        this.setTags(tags);
-
-        var albumsForTag = window.localStorage[tagToRemove];
-        albumsForTag ? albumsForTag = JSON.parse(albumsForTag) : albumsForTag = [];
-        
-        if (_.contains(albumsForTag, this.model.get("albumKey"))) {
-          albumsForTag = _.filter(albumsForTag, _.bind(function(album) { console.log('album, albumKey', album, this.model.get("albumKey")); return album !== this.model.get("albumKey"); }, this));
-          window.localStorage[tagToRemove] = JSON.stringify(albumsForTag);
-        }
+        R.enhancer.removeTag(tagToRemove, this.model.get("albumKey"));
+        this.menuDirty = true;
       };
-
-      b.getTagsForAlbum = function() {
-        if (window.localStorage) {
-          var value = window.localStorage[this.model.get("albumKey")];
-          if (value) {
-            return JSON.parse(value);
-          }
-        }
-      
-        return [];
-      },
-
-      b.setTags = function(tags) {
-        if (window.localStorage) {
-          // Set the tags for the current albums
-          var albumKey = this.model.get("albumKey");
-          window.localStorage[albumKey] = JSON.stringify(tags);
-
-          // For every tags, add the album key to it's list of albums
-          // This will facilitate ease & speed of search by tag
-          _.each(tags, _.bind(function(tag) {
-            var albumsForTag = window.localStorage[tag];
-            albumsForTag ? albumsForTag = JSON.parse(albumsForTag) : albumsForTag = [];
-
-            if (!_.contains(albumsForTag, this.model.get("albumKey"))) {
-              albumsForTag.push(this.model.get("albumKey"));
-              window.localStorage[tag] = JSON.stringify(albumsForTag);
-            }
-          },this));
-
-          this.menuDirty = true;
-        }
-      },
 
       b.onManageTags = function(model) {
         var that = this;
@@ -444,15 +402,16 @@ function injectedJs() {
           dialog.onOpen = function() {
             // Form with only a textarea allowing the user to enter tags (each separated by a comma)
             this.$(".body").html('<ul class="form_list"><li class="form_row no_line"><div class="label">Tags :<br/>(comma separated)</div><div class="field"><textarea style="height:72px;" class="tags" name="tags"></textarea></div></li></ul>');
-            this.$(".body .tags").val(that.getTagsForAlbum());
+            this.$(".body .tags").val(R.enhancer.getTagsForAlbum(that.model.get("albumKey")));
             this.$(".footer .blue").removeAttr("disabled");
 
             // Save the tags when the user click on confirm
             this.$(".footer .blue").on("click", _.bind(function() {
               var tags = this.$(".body .tags").val().trim().split(",");
               tags = _.map(tags, function(tag) { return tag.trim(); });
-              that.setTags(tags);
+              R.enhancer.setTags(tags, that.model.get("albumKey"));
               this.close();
+              that.menuDirty = true;
             }, this));
           };
           dialog.open()
@@ -460,7 +419,7 @@ function injectedJs() {
       };
 
       b.manageTagsVisible = function() {
-        return this.model.get("type") === "al"
+        return this.model.get("type") === "al";
       };
 			// End Extras menu functions
 
@@ -469,6 +428,7 @@ function injectedJs() {
 				b.orig_onRendered.call(this);
 			};
 		}
+
 		if(a == "PlaylistPage") {
 			//console.log(b);
 			b.orig_onRendered = b.onRendered;
@@ -483,28 +443,15 @@ function injectedJs() {
 		}
 
     if (a == "Profile.Collection") {
-      console.log('a, b', a, b);
-
-      b.getAlbumsForTag = function(tag) {
-        if (window.localStorage) {
-          var value = window.localStorage[tag];
-          if (value) {
-            return JSON.parse(value);
-          }
-        }
-      
-        return [];
-      },
-
       b.orig_onRendered = b.onRendered;
       b.onRendered = function() {
         b.orig_onRendered.call(this);
         R.enhancer.collection = this;
 
-        this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div><a href="#" class="search_clear"></a></span>');
+        this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div></span>');
         this.$(".tags_filter").on("keyup", _.bind(function() {
           var value = this.$(".tags_filter").val().trim();
-          var albums = b.getAlbumsForTag(value);
+          var albums = R.enhancer.getAlbumsForTag(value);
 
           if (albums.length > 0) {
             R.enhancer.collection.collectionModel.reset();
@@ -525,6 +472,8 @@ function injectedJs() {
     if (a== "InfiniteScroll") {
       b.orig_ensureItemsLoaded = b.ensureItemsLoaded;
       b.ensureItemsLoaded = function() {
+        // When manually filtered (by tagging system)
+        // stop the component from reloading all albums
         if (this.model.manualFiltered) {
           return;
         }
@@ -694,6 +643,58 @@ function injectedJs() {
 			}
 		}
 	};
+
+  // Tagging (uses localstorage to store tag set by the user)
+  //
+  R.enhancer.getAlbumsForTag = function(tag) {
+    if (window.localStorage) {
+      var value = window.localStorage[tag];
+      if (value) {
+        return JSON.parse(value);
+      }
+    }
+  
+    return [];
+  };
+  R.enhancer.getTagsForAlbum = function(albumKey) {
+    if (window.localStorage) {
+      var value = window.localStorage[albumKey];
+      if (value) {
+        return JSON.parse(value);
+      }
+    }
+
+    return [];
+  };
+  R.enhancer.setTags = function(tags, albumKey) {
+    if (window.localStorage) {
+      // Set the tags for the current albums
+      window.localStorage[albumKey] = JSON.stringify(tags);
+
+      // For every tags, add the album key to it's list of albums
+      // This will facilitate ease & speed of search by tag
+      _.each(tags, _.bind(function(tag) {
+        var albumsForTag = window.localStorage[tag];
+        albumsForTag ? albumsForTag = JSON.parse(albumsForTag) : albumsForTag = [];
+
+        if (!_.contains(albumsForTag, albumKey)) {
+          albumsForTag.push(albumKey);
+          window.localStorage[tag] = JSON.stringify(albumsForTag);
+        }
+      },this));
+    }
+  };
+  R.enhancer.removeTag = function(tagToRemove, albumKey) {
+    var tagsForAlbum = R.enhancer.getTagsForAlbum(albumKey), albumsForTag = R.enhancer.getAlbumsForTag(tagToRemove);
+
+    // Remove tag from album's tags list
+    tagsForAlbum = _.filter(tagsForAlbum, function(tag) { return tag !== tagToRemove; });
+    window.localStorage[albumKey] = JSON.stringify(tagsForAlbum);
+    
+    // Remove album from tag albums list
+    albumsForTag = _.filter(albumsForTag, function(album) { return album !== albumKey; });
+    window.localStorage[tagToRemove] = JSON.stringify(albumsForTag);
+  };
 }
 
 window.setTimeout(function() {
