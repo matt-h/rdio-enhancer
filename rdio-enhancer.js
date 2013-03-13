@@ -70,7 +70,7 @@ function injectedJs() {
 				return;
 			}
 			// Overwrite the playlist add function to support adding playlists to playlists
-			// From core.rdio.js line 7098
+			// From core.rdio.js line 8056
 			R.Models.Playlist.prototype.add = function(model) {
 				var model_type = model.get("type");
 				var playlist_this = this;
@@ -97,7 +97,7 @@ function injectedJs() {
 						content: {
 							playlist: playlist_this.get("key"),
 							tracks: track_list,
-							extras: ["-*, duration, Playlist.PUBLISHED"]
+							extras: ["-*", "duration", "Playlist.PUBLISHED"]
 						},
 						success: function(a) {
 							R.enhancer.show_message('Added "' + model.get("name") + '" to Playlist "' + playlist_this.get("name") + '"');
@@ -307,7 +307,7 @@ function injectedJs() {
 											index: unique_tracks.length,
 											count: duplicate_tracks.length,
 											tracks: duplicate_tracks,
-											extras: "-*, duration, Playlist.PUBLISHED"
+											extras: ["-*", "duration", "Playlist.PUBLISHED"]
 										},
 										success: function(success_data) {
 											R.enhancer.current_playlist.render();
@@ -638,7 +638,7 @@ function injectedJs() {
 				content: {
 					playlist:key,
 					tracks:tracks,
-					extras: "-*, Playlist.PUBLISHED"
+					extras: ["-*", "Playlist.PUBLISHED"]
 				},
 				success: callback
 			});
