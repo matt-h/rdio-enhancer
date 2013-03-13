@@ -682,9 +682,18 @@ function injectedJs() {
 		//
 		getAlbumsForTag: function(tag) {
 			if (window.localStorage) {
-				var value = window.localStorage[tag];
+				var value = window.localStorage["/enhancer/tags/tag/" + tag];
 				if (value) {
 					return JSON.parse(value);
+				}
+				else {
+					// This else is temporary to not lose data from the old tag saving. This will be removed eventually once enough time has passed to ensure all tags are upgraded.
+					var value = window.localStorage[tag];
+					if (value) {
+						window.localStorage["/enhancer/tags/tag/" + tag] = value;
+						window.localStorage.removeItem(tag)
+						return JSON.parse(value);
+					}
 				}
 			}
 
@@ -692,9 +701,18 @@ function injectedJs() {
 		},
 		getTagsForAlbum: function(albumKey) {
 			if (window.localStorage) {
-				var value = window.localStorage[albumKey];
+				var value = window.localStorage["/enhancer/tags/ablum/" + albumKey];
 				if (value) {
 					return JSON.parse(value);
+				}
+				else {
+					// This else is temporary to not lose data from the old tag saving. This will be removed eventually once enough time has passed to ensure all tags are upgraded.
+					var value = window.localStorage[albumKey];
+					if (value) {
+						window.localStorage["/enhancer/tags/ablum/" + albumKey] = value;
+						window.localStorage.removeItem(albumKey)
+						return JSON.parse(value);
+					}
 				}
 			}
 
@@ -713,21 +731,22 @@ function injectedJs() {
 
 					if (!_.contains(albumsForTag, albumKey)) {
 						albumsForTag.push(albumKey);
-						window.localStorage[tag] = JSON.stringify(albumsForTag);
+						window.localStorage["/enhancer/tags/tag/" + tag] = JSON.stringify(albumsForTag);
 					}
 				},this));
 			}
 		},
 		removeTag: function(tagToRemove, albumKey) {
-			var tagsForAlbum = R.enhancer.getTagsForAlbum(albumKey), albumsForTag = R.enhancer.getAlbumsForTag(tagToRemove);
+			var tagsForAlbum = R.enhancer.getTagsForAlbum(albumKey),
+			albumsForTag = R.enhancer.getAlbumsForTag(tagToRemove);
 
 			// Remove tag from album's tags list
 			tagsForAlbum = _.filter(tagsForAlbum, function(tag) { return tag !== tagToRemove; });
-			window.localStorage[albumKey] = JSON.stringify(tagsForAlbum);
+			window.localStorage["/enhancer/tags/ablum/" + albumKey] = JSON.stringify(tagsForAlbum);
 
 			// Remove album from tag albums list
 			albumsForTag = _.filter(albumsForTag, function(album) { return album !== albumKey; });
-			window.localStorage[tagToRemove] = JSON.stringify(albumsForTag);
+			window.localStorage["/enhancer/tags/tag/" + tagToRemove] = JSON.stringify(albumsForTag);
 		}
 	};
 
@@ -741,3 +760,5 @@ var script = document.createElement("script");
 script.type = "text/javascript";
 script.text = codeToString(injectedJs);
 document.body.appendChild(script);
+
+console.log(window.localStorage);
