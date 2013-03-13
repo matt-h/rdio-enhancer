@@ -760,5 +760,3 @@ var script = document.createElement("script");
 script.type = "text/javascript";
 script.text = codeToString(injectedJs);
 document.body.appendChild(script);
-
-console.log(window.localStorage);
