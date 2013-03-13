@@ -29,6 +29,13 @@ To Do
 
 Changelog
 ================
+v 2.5.1
+
+* Fixes
+
+	* Fixed Remove Duplicates feature that broke recently
+	* Fixed an issue with Rdio Enhancer not loading all of the time
+
 v 2.5
 
 * New Features
