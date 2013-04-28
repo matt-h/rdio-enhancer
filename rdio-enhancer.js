@@ -121,6 +121,57 @@ function injectedJs() {
 				//R.enhancer.log("Rdio Enhancer:")
 				//R.enhancer.log(a);
 
+				if(a == "App.Header") {
+					b.orig_events = b.events;
+					b.events = function() {
+						var local_events = b.orig_events.call(this);
+						local_events["click .enhancer_master_menu"] = "onToggleEnhancerMenu";
+						return local_events;
+					};
+
+					// Inject Enhancer menu functions
+					b.onToggleEnhancerMenu = function(a) {
+						this.ToggleEnhancerMenu(), R.Utils.stopEvent(a);
+					};
+					b.ToggleEnhancerMenu = function() {
+						this.enhancer_master_menu || (this.checkIsInQueue(), this.enhancer_master_menu = this.addChild(new
+						R.Components.Menu({
+							positionOverEl: this.$el.find(".enhancer_master_menu"),
+							defaultContext: this,
+							alignFirstItem: true,
+							model: new Backbone.Collection(this.getEnhancerMenuOptions())
+						})), this.listen(this.enhancer_master_menu, "open", this.onEnhancerMenuOpened));
+						this.enhancer_master_menu.toggle(a);
+					};
+					b.getEnhancerMenuOptions = function() {
+						return [{
+								label: "Rdio Enhancer Settings",
+								value: "enhancersettings",
+								callback: this.enhancer_settings,
+								visible: true
+							},
+							{
+								label: "About Rdio Enhancer",
+								value: "aboutrdioenhancer",
+								callback: this.aboutRdioEnhancer,
+								visible: true
+							}];
+					};
+
+					b.orig_onRendered = b.onRendered;
+					b.onRendered = function() {
+						b.orig_onRendered.call(this);
+						this.$(".user_nav").append('<span class="user_nav_button enhancer_master_menu"></span>');
+						var enhancer_menu_ele = this.$(".enhancer_master_menu");
+						this.enhancerMenu = this.addChild(new R.Components.Menu({
+							positionOverEl: enhancer_menu_ele,
+							positionUnder: true,
+							model: this.getEnhancerMenuOptions
+						}));
+						this.listen(this.settingsMenu, "optionSelected", this.onSettingsMenuOptionSelected);
+					}
+				}
+
 				if(a == "Dialog.EditPlaylistDialog.Rdio") {
 					b._getAttributes = function() {
 						var parent_get_attributes = R.Components.Dialog.EditPlaylistDialog.Rdio.callSuper(this, "_getAttributes");

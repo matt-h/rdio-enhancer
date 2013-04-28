@@ -67,3 +67,7 @@
 	color:#FFF;
 	font-weight:bold;
 }
+.App_Header .user_nav .enhancer_master_menu {
+	margin-left: 8px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAABGdBTUEAALGPC/xhBQAAAC1QTFRFNj5DNj5DNj5DNj5DNj5DNj5DNj5DNj5DNj5DNj5DNj5DNj5DNj5DAAAANj5DkaUt7QAAAA50Uk5TcJ8ggGDP70CvMN+PEAAj3xNOAAAAQUlEQVQI12O4CwS7GYDEhVcgUu05w527d+P2MrTNvfzqLINczLzndxmOvVi39y7D9Xevzt5luLvv5V0gecP37l0AicYmqHVWwUEAAAAASUVORK5CYII=);
+}
