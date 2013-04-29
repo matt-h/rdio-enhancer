@@ -132,7 +132,6 @@ function injectedJs() {
 					};
 
 					b.onEnhancerMenuOptionSelected = function(linkvalue, something) {
-						console.log(something);
 						linkvalue && (something ? window.open(linkvalue, "_blank") : R.router.navigate(linkvalue, true));
 					};
 
