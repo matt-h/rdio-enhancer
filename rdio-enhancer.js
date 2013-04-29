@@ -122,41 +122,35 @@ function injectedJs() {
 				//R.enhancer.log(a);
 
 				if(a == "App.Header") {
-					b.orig_events = b.events;
-					b.events = function() {
-						var local_events = b.orig_events.call(this);
-						local_events["click .enhancer_master_menu"] = "onToggleEnhancerMenu";
-						return local_events;
-					};
+					// Add new event
+					b.events["click .enhancer_master_menu"] = "onEnhancerMenuButtonClicked";
 
 					// Inject Enhancer menu functions
-					b.onToggleEnhancerMenu = function(a) {
-						this.ToggleEnhancerMenu(), R.Utils.stopEvent(a);
+					b.onEnhancerMenuButtonClicked = function(event) {
+						this.enhancerMenu.open();
+						R.Utils.stopEvent(event);
 					};
-					b.ToggleEnhancerMenu = function() {
-						this.enhancer_master_menu || (this.checkIsInQueue(), this.enhancer_master_menu = this.addChild(new
-						R.Components.Menu({
-							positionOverEl: this.$el.find(".enhancer_master_menu"),
-							defaultContext: this,
-							alignFirstItem: true,
-							model: new Backbone.Collection(this.getEnhancerMenuOptions())
-						})), this.listen(this.enhancer_master_menu, "open", this.onEnhancerMenuOpened));
-						this.enhancer_master_menu.toggle(a);
+
+					b.onEnhancerMenuOptionSelected = function(linkvalue, something) {
+						console.log(something);
+						linkvalue && (something ? window.open(linkvalue, "_blank") : R.router.navigate(linkvalue, true));
 					};
-					b.getEnhancerMenuOptions = function() {
-						return [{
-								label: "Rdio Enhancer Settings",
-								value: "enhancersettings",
-								callback: this.enhancer_settings,
-								visible: true
-							},
-							{
-								label: "About Rdio Enhancer",
-								value: "aboutrdioenhancer",
-								callback: this.aboutRdioEnhancer,
-								visible: true
-							}];
-					};
+
+					b.getEnhancerMenuOptions = new Backbone.Collection([
+						{
+							label: "Rdio Enhancer Settings",
+							value: "",
+							callback: R.enhancer.settings_dialog,
+							visible: true
+						},
+						{
+							label: "About Rdio Enhancer",
+							value: "",
+							callback: R.enhancer.about_dialog,
+							visible: true
+						}
+					]);
+
 
 					b.orig_onRendered = b.onRendered;
 					b.onRendered = function() {
@@ -168,8 +162,8 @@ function injectedJs() {
 							positionUnder: true,
 							model: this.getEnhancerMenuOptions
 						}));
-						this.listen(this.settingsMenu, "optionSelected", this.onSettingsMenuOptionSelected);
-					}
+						this.listen(this.enhancerMenu, "optionSelected", this.onEnhancerMenuOptionSelected);
+					};
 				}
 
 				if(a == "Dialog.EditPlaylistDialog.Rdio") {
@@ -323,7 +317,7 @@ function injectedJs() {
 							}, {
 								label: "About Rdio Enhancer",
 								value: "aboutrdioenhancer",
-								callback: this.aboutRdioEnhancer,
+								callback: R.enhancer.about_dialog,
 								visible: true
 							}];
 					};
@@ -395,17 +389,6 @@ function injectedJs() {
 								isNew: true
 							});
 							editor.open()
-						});
-					};
-					b.aboutRdioEnhancer = function() {
-						R.loader.load(["Dialog"], function() {
-							var about_enhancer = new R.Components.Dialog({
-								title: "About Rdio Enhancer"
-							});
-							about_enhancer.onOpen = function() {
-								this.$(".body").html('<p>Enhancement features brought to you by <a href="https://chrome.google.com/webstore/detail/hmaalfaappddkggilhahaebfhdmmmngf" target="_blank">Rdio Enhancer</a></p><p>Get the code or browse the code at <a href="https://github.com/matt-h/rdio-enhancer" target="_blank">https://github.com/matt-h/rdio-enhancer</a></p><p>If you like this extension, <a href="https://chrome.google.com/webstore/detail/hmaalfaappddkggilhahaebfhdmmmngf" target="_blank">please rate it here</a></p>');
-							};
-							about_enhancer.open()
 						});
 					};
 
@@ -555,6 +538,30 @@ function injectedJs() {
 
 				return R.Component.orig_create.call(this, a,b,c);
 			};
+		},
+
+		settings_dialog: function() {
+			R.loader.load(["Dialog"], function() {
+				var enhancer_settings_dialog = new R.Components.Dialog({
+					title: "Rdio Enhancer Settings"
+				});
+				enhancer_settings_dialog.onOpen = function() {
+					this.$(".body").html('<p>Settings coming soon</p>');
+				};
+				enhancer_settings_dialog.open()
+			});
+		},
+
+		about_dialog: function() {
+			R.loader.load(["Dialog"], function() {
+				var about_enhancer = new R.Components.Dialog({
+					title: "About Rdio Enhancer"
+				});
+				about_enhancer.onOpen = function() {
+					this.$(".body").html('<p>Enhancement features brought to you by <a href="https://chrome.google.com/webstore/detail/hmaalfaappddkggilhahaebfhdmmmngf" target="_blank">Rdio Enhancer</a></p><p>Get the code or browse the code at <a href="https://github.com/matt-h/rdio-enhancer" target="_blank">https://github.com/matt-h/rdio-enhancer</a></p><p>If you like this extension, <a href="https://chrome.google.com/webstore/detail/hmaalfaappddkggilhahaebfhdmmmngf" target="_blank">please rate it here</a></p>');
+				};
+				about_enhancer.open()
+			});
 		},
 
 		get_messages: function() {
