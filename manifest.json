@@ -7,6 +7,7 @@
       "matches": [ "http://www.rdio.com/*" ],
       "run_at": "document_end"
    } ],
+   "web_accessible_resources": ["options.html"],
    "description": "Enhances rdio.com with many of the most requested Feature Requests for rdio. View details for full list.",
    "name": "Rdio Enhancer",
    "icons": {

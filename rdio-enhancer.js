@@ -539,13 +539,51 @@ function injectedJs() {
 			};
 		},
 
+		get_setting: function(setting_name) {
+			if(window.localStorage["/enhancer/settings/" + setting_name]) {
+				return window.localStorage["/enhancer/settings/" + setting_name];
+			}
+			return false;
+		},
+		set_setting: function(setting_name, value) {
+			window.localStorage["/enhancer/settings/" + setting_name] = value;
+		},
+
 		settings_dialog: function() {
 			R.loader.load(["Dialog"], function() {
 				var enhancer_settings_dialog = new R.Components.Dialog({
-					title: "Rdio Enhancer Settings"
+					title: "Rdio Enhancer Settings",
+					buttons: new Backbone.Model({
+						label: "Save",
+						className: "blue",
+						context: this,
+						callback: function() {
+							switch(enhancer_settings_dialog.$("input[name=enhancer_notifications]:checked").val()) {
+								case "chrome":
+									R.enhancer.set_setting("notifications", "chrome");
+								break;
+								case "none":
+									R.enhancer.set_setting("notifications", "none");
+								break;
+								case "html":
+								default:
+									R.enhancer.set_setting("notifications", "html");
+								break;
+							}
+							enhancer_settings_dialog.close();
+						}
+					}),
+					closeButton: "Cancel"
 				});
 				enhancer_settings_dialog.onOpen = function() {
-					this.$(".body").html('<p>Settings coming soon</p>');
+					this.$(".body").addClass("Dialog_FormDialog");
+					this.$(".body .container").append($("#enhancer_settings_form").clone());
+					// Notification settings
+					var notification_setting = R.enhancer.get_setting("notifications");
+					if(notification_setting === false) {
+						notification_setting = "html";
+					}
+					this.$(".body #enhancer_notifications_" + notification_setting).prop('checked',true);
 				};
 				enhancer_settings_dialog.open()
 			});
@@ -812,6 +850,18 @@ function injectedJs() {
 	R.enhancer.overwrite_create();
 	R.enhancer.overwrite_request();
 }
+
+var enhancer_html = document.createElement("div");
+enhancer_html.id = "enhancer_html";
+document.body.appendChild(enhancer_html);
+var xhr = new XMLHttpRequest();
+xhr.onreadystatechange = function() {
+	if (xhr.readyState == 4) {
+		document.getElementById("enhancer_html").innerHTML = xhr.responseText;
+	}
+};
+xhr.open("GET", chrome.extension.getURL("options.html"), true);
+xhr.send();
 
 var script = document.createElement("script");
 script.type = "text/javascript";
