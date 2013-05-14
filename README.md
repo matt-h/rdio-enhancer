@@ -29,6 +29,14 @@ To Do
 
 Changelog
 ================
+v 2.6
+
+* New
+
+	* Options menu in the top right of Rdio
+	* Settings for notifications
+
+
 v 2.5.1
 
 * Fixes
