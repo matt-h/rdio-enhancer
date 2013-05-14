@@ -615,10 +615,23 @@ function injectedJs() {
 		},
 
 		show_message: function(msg_txt) {
-			var messages = R.enhancer.get_messages();
-			jQuery('<div class="enhancer_message_box">' + msg_txt + '</div>').appendTo(messages).fadeIn("slow").delay(10000).fadeOut("slow", function() {
-				$(this).remove();
-			});;
+			switch(R.enhancer.get_setting("notifications")) {
+				case false:
+				case "html":
+					var messages = R.enhancer.get_messages();
+					jQuery('<div class="enhancer_message_box">' + msg_txt + '</div>').appendTo(messages).fadeIn("slow").delay(10000).fadeOut("slow", function() {
+						$(this).remove();
+					});
+				break;
+				case "chrome":
+					var notification = webkitNotifications.createNotification(
+						"",  // icon url - can be relative
+						"Rdio Notification",  // notification title
+						msg_txt  // notification body text
+					);
+					notification.show();
+				break;
+			}
 		},
 
 		overwrite_request: function() {

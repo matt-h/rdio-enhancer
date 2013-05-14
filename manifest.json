@@ -10,6 +10,9 @@
    "web_accessible_resources": ["options.html"],
    "description": "Enhances rdio.com with many of the most requested Feature Requests for rdio. View details for full list.",
    "name": "Rdio Enhancer",
+	"permissions": [
+		"notifications"
+	],
    "icons": {
    	"48": "48.png",
    	"128": "128.png"
