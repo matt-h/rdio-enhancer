@@ -18,15 +18,6 @@ Current Features
 	* Add playlists to other playlists
 
 
-To Do
-================
-* Import Spotify playlists
-* Browse by and filter your collection by year
-* Export/Import Playlists
-* Export to CSV
-	* Fix Export to CSV so it can save a filename. Need to figure out a new way to do this; Data URIs currently do not support this.
-
-
 Changelog
 ================
 v 2.5.2
