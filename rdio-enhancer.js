@@ -26,42 +26,9 @@ function injectedJs() {
 
 	// Build the Rdio Enhancer Class
 	R.enhancer = {
-		dump: function(arr, level) {
-			var dumped_text = "";
-			if(!level) {
-				level = 0;
-			}
-			if(level > 2) {
-				return "too deep";
-			}
-
-			//The padding given at the beginning of the line.
-			var level_padding = "";
-			for(var j=0;j<level+1;j++) {
-				level_padding += "		";
-			}
-
-			if(typeof(arr) == 'object') { //Array/Hashes/Objects
-				for(var item in arr) {
-					var value = arr[item];
-
-					if(typeof(value) == 'object') { //If it is an array,
-						dumped_text += level_padding + "'" + item + "' ...\n";
-						dumped_text += R.enhancer.dump(value,level+1);
-					}
-					else {
-						dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
-					}
-				}
-			}
-			else { //Stings/Chars/Numbers etc.
-				dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
-			}
-			return dumped_text;
-		},
-
 		log: function(item) {
-			console.log(R.enhancer.dump(item));
+			delete console.log;
+			console.log(item);
 		},
 
 		overwrite_playlist: function() {
