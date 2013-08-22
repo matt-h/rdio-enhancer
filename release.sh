@@ -36,6 +36,7 @@ echo "Copy files needed"
 cp 128.png $output_dir
 cp 48.png $output_dir
 cp manifest.json $output_dir
+cp options.html $output_dir
 cp rdio-enhancer.js $output_dir
 cp rdio-enhancer.css $output_dir
 
