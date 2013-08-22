@@ -90,7 +90,12 @@ function injectedJs() {
 
 				if(a == "App.Header") {
 					// Add new event
-					b.events["click .enhancer_master_menu"] = "onEnhancerMenuButtonClicked";
+					b.orig_events = b.events;
+					b.events = function() {
+						var local_events = b.orig_events.call(this);
+						local_events["click .enhancer_master_menu"] = "onEnhancerMenuButtonClicked";
+						return local_events;
+					};
 
 					// Inject Enhancer menu functions
 					b.onEnhancerMenuButtonClicked = function(event) {
@@ -121,7 +126,7 @@ function injectedJs() {
 					b.orig_onRendered = b.onRendered;
 					b.onRendered = function() {
 						b.orig_onRendered.call(this);
-						this.$(".user_nav").append('<span class="user_nav_button enhancer_master_menu"></span>');
+						this.$(".right_container .user_nav").append('<span class="user_nav_button enhancer_master_menu"></span>');
 						var enhancer_menu_ele = this.$(".enhancer_master_menu");
 						this.enhancerMenu = this.addChild(new R.Components.Menu({
 							positionOverEl: enhancer_menu_ele,
