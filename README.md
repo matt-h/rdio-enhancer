@@ -20,6 +20,12 @@ Current Features
 
 Changelog
 ================
+v 2.5.3
+
+* Fixes
+
+	* Fix options menu due to Rdio update
+
 v 2.5.2
 
 * New
