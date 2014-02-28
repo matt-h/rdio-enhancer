@@ -219,6 +219,16 @@ function injectedJs() {
 								callback: this.sortPlaylistbySong,
 								visible: true
 							}, {
+								label: "Sort by Release Date (oldest first)",
+								value: "sortbyreleasedateasc",
+								callback: this.sortPlaylistbyReleaseDateAsc,
+								visible: true
+							}, {
+								label: "Sort by Release Date (newest first)",
+								value: "sortbyreleasedatedesc",
+								callback: this.sortPlaylistbyReleaseDateDesc,
+								visible: true
+							}, {
 								label: "Randomize",
 								value: "randomize",
 								callback: this.sortPlaylistRandom,
@@ -239,13 +249,58 @@ function injectedJs() {
 						R.enhancer.current_playlist.model.setPlaylistOrder();
 						R.enhancer.current_playlist.render();
 					};
-					b.sortPlaylistbySong = function() {
+					b.sortPlaylistbySong = function() {					
 						R.enhancer.show_message("Sorted Playlist by Song Name");
 						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
 						R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByTrackName)});
 						R.enhancer.current_playlist.model.setPlaylistOrder();
 						R.enhancer.current_playlist.render();
 					};
+
+					b.sortPlaylistbyReleaseDate = function(order) {
+						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+						var album_keys = [];
+						var results = {};
+						jQuery.each(tracks, function(index, value) {
+							var album_key = value.attributes.source.attributes.albumKey;
+							album_keys.push(album_key);
+						});
+						R.Api.request({
+							method: "get",
+							content: {
+								keys: album_keys,
+								extras: ["-*", "releaseDate"]
+							},
+							success: function(success_data) {
+								results = success_data;
+								jQuery.each(tracks, function(index, value) {
+									//console.debug (value.attributes.source.attributes.albumKey);
+									//console.debug (success_data.result[value.attributes.source.attributes.albumKey]);
+									//console.debug (success_data.result[value.attributes.source.attributes.albumKey].releaseDate);	
+									if (success_data.result[value.attributes.source.attributes.albumKey].releaseDate) {
+										value.attributes.source.attributes.releaseDate = results.result[value.attributes.source.attributes.albumKey].releaseDate;										
+									}								
+									
+								});
+								R.enhancer.show_message("Sorted Playlist by Release Date (" + order + " first)" );
+								if (order == "oldest") {
+									R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByReleaseDate)});
+								}
+								else {
+									R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByReleaseDateDesc)});
+								}
+								R.enhancer.current_playlist.model.setPlaylistOrder();
+								R.enhancer.current_playlist.render();
+							}
+						});					
+					};
+					b.sortPlaylistbyReleaseDateAsc = function() {
+						b.sortPlaylistbyReleaseDate("oldest");
+					};
+					b.sortPlaylistbyReleaseDateDesc = function() {
+						b.sortPlaylistbyReleaseDate("newest");
+					};
+									
 					b.sortPlaylistRandom = function() {
 						R.enhancer.show_message("Randomized Playlist")
 						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
@@ -336,6 +391,7 @@ function injectedJs() {
 							R.enhancer.show_message('There are no duplicates to remove "' + R.enhancer.current_playlist.model.get("name") + '"');
 						}
 					};
+
 					b.exportToCSV = function() {
 						// This almost works.. leaving disabled for now.
 						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
@@ -674,6 +730,37 @@ function injectedJs() {
 				return R.enhancer.sortByTrackNum(a, b);
 			}
 		},
+
+		sortByReleaseDate: function(a, b) {
+			var date_a = a.attributes.source.attributes.releaseDate,
+			date_b = b.attributes.source.attributes.releaseDate;
+
+
+
+			if (date_a < date_b) {
+				return -1;
+			}
+			else if (date_a > date_b) {
+				return 1;
+			}
+			else {
+				return R.enhancer.sortByAlbum(a, b);
+			}
+		},		
+
+		sortByReleaseDateDesc: function(a, b) {
+			var date_a = a.attributes.source.attributes.releaseDate,
+			date_b = b.attributes.source.attributes.releaseDate;
+			if (date_a < date_b) {
+				return 1;
+			}
+			else if (date_a > date_b) {
+				return -1;
+			}
+			else {
+				return R.enhancer.sortByAlbum(a, b);
+			}
+		},	
 
 		sortByTrackName: function(a, b) {
 			var trackname_a = a.attributes.source.attributes.name.toLowerCase(),
