@@ -745,20 +745,6 @@ function injectedJs() {
 			}
 		},		
 
-		sortByReleaseDateDesc: function(a, b) {
-			var date_a = a.attributes.source.attributes.releaseDate,
-			date_b = b.attributes.source.attributes.releaseDate;
-			if (date_a < date_b) {
-				return 1;
-			}
-			else if (date_a > date_b) {
-				return -1;
-			}
-			else {
-				return R.enhancer.sortByAlbum(a, b);
-			}
-		},	
-
 		sortByTrackName: function(a, b) {
 			var trackname_a = a.attributes.source.attributes.name.toLowerCase(),
 			trackname_b = b.attributes.source.attributes.name.toLowerCase();
