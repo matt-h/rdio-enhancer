@@ -785,11 +785,9 @@ function injectedJs() {
 			if(typeof(callback) === "undefined") {
 				callback = function(status) {
 					if (status.result) {
-						alert (status.result);
 						return true;
 					}
 					else {
-						alert ("none");ß
 						return false;
 					}
 				};
