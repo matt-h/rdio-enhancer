@@ -322,12 +322,7 @@ function injectedJs() {
 						this.enhancer_extras_menu.toggle(a);
 					};
 					b.getExtraMenuOptions = function() {
-						return [{
-								label: "Remove Duplicates",
-								value: "removeduplicates",
-								callback: this.removeDuplicates,
-								visible: true
-							}, {
+						var submenu = [{
 								label: "Export to CSV",
 								value: "exporttocsv",
 								callback: this.exportToCSV,
@@ -342,7 +337,18 @@ function injectedJs() {
 								value: "aboutrdioenhancer",
 								callback: R.enhancer.about_dialog,
 								visible: true
-							}];
+							}
+						];
+
+						if (R.enhancer.current_playlist.model.canEdit()) {
+							submenu.unshift ({
+								label: "Remove Duplicates",
+								value: "removeduplicates",
+								callback: this.removeDuplicates,
+								visible: true
+							});							
+						}
+						return submenu;
 					};
 					b.removeDuplicates = function() {
 						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
@@ -515,8 +521,11 @@ function injectedJs() {
 						b.orig_onRendered.call(this);
 						// R.enhancer.log(this.model);
 						R.enhancer.current_playlist = this;
-						this.$(".tracklist_toolbar .ActionMenu").append('<span class="sortpl button"><span class="text">Sort Playlist</span><span class="dropdown_arrow"></span></span>');
+						if (R.enhancer.current_playlist.model.canEdit()) {
+							this.$(".tracklist_toolbar .ActionMenu").append('<span class="sortpl button"><span class="text">Sort Playlist</span><span class="dropdown_arrow"></span></span>');
+						}
 						this.$(".tracklist_toolbar .ActionMenu").append('<span class="enhancerextras button"><span class="text">Extras</span><span class="dropdown_arrow"></span></span>');
+						
 					}
 
 				}
@@ -776,9 +785,11 @@ function injectedJs() {
 			if(typeof(callback) === "undefined") {
 				callback = function(status) {
 					if (status.result) {
+						alert (status.result);
 						return true;
 					}
 					else {
+						alert ("none");ß
 						return false;
 					}
 				};
