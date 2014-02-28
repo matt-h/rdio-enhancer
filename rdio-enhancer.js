@@ -219,16 +219,16 @@ function injectedJs() {
 								callback: this.sortPlaylistbySong,
 								visible: true
 							}, {
-								label: "Sort by Release Date (oldest first)",
+								label: "Sort by Release Date",
 								value: "sortbyreleasedateasc",
-								callback: this.sortPlaylistbyReleaseDateAsc,
+								callback: this.sortPlaylistbyReleaseDate,
 								visible: true
 							}, {
-								label: "Sort by Release Date (newest first)",
-								value: "sortbyreleasedatedesc",
-								callback: this.sortPlaylistbyReleaseDateDesc,
+								label: "Reverse",
+								value: "reverse",
+								callback: this.sortPlaylistReverse,
 								visible: true
-							}, {
+							},  {
 								label: "Randomize",
 								value: "randomize",
 								callback: this.sortPlaylistRandom,
@@ -257,7 +257,7 @@ function injectedJs() {
 						R.enhancer.current_playlist.render();
 					};
 
-					b.sortPlaylistbyReleaseDate = function(order) {
+					b.sortPlaylistbyReleaseDate = function() {
 						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
 						var album_keys = [];
 						var results = {};
@@ -282,24 +282,21 @@ function injectedJs() {
 									}								
 									
 								});
-								R.enhancer.show_message("Sorted Playlist by Release Date (" + order + " first)" );
-								if (order == "oldest") {
-									R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByReleaseDate)});
-								}
-								else {
-									R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByReleaseDateDesc)});
-								}
+								R.enhancer.show_message("Sorted Playlist by Release Date" );
+								R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByReleaseDate)});
 								R.enhancer.current_playlist.model.setPlaylistOrder();
 								R.enhancer.current_playlist.render();
 							}
 						});					
-					};
-					b.sortPlaylistbyReleaseDateAsc = function() {
-						b.sortPlaylistbyReleaseDate("oldest");
-					};
-					b.sortPlaylistbyReleaseDateDesc = function() {
-						b.sortPlaylistbyReleaseDate("newest");
-					};
+					};	
+
+					b.sortPlaylistReverse = function() {
+						R.enhancer.show_message("Reversed Playlist")
+						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
+						R.enhancer.current_playlist.model.set({"model": tracks.reverse()});
+						R.enhancer.current_playlist.model.setPlaylistOrder();
+						R.enhancer.current_playlist.render();
+					}
 									
 					b.sortPlaylistRandom = function() {
 						R.enhancer.show_message("Randomized Playlist")
