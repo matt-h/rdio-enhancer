@@ -20,6 +20,14 @@ Current Features
 
 Changelog
 ================
+v 2.6
+
+* New
+
+	* Add Sort by Release Date - [Sean Smith](https://github.com/seans23)
+	* Add reverse sorting - [Sean Smith](https://github.com/seans23)
+	* Only show sort options on Playlists you have permission to edit - [Sean Smith](https://github.com/seans23)
+
 v 2.5.3
 
 * Fixes
@@ -188,6 +196,12 @@ Thanks
 Nicolas [@cotenoni](https://twitter.com/cotenoni) [GitHub](https://github.com/cotenoni)
 
   * Add Tags to Albums feature
+
+[Sean Smith](https://github.com/seans23)
+
+  * Sort by Release Date
+  * Reverse sorting
+  * Only show sort options on Playlists you have permission to edit
 
 [TwoSlick](https://github.com/TwoSlick)
 
