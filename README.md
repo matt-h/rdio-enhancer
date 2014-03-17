@@ -20,6 +20,12 @@ Current Features
 
 Changelog
 ================
+v 2.6.1
+
+* Fixes
+
+	* Allow extension to work on https - [Sean Smith](https://github.com/seans23)
+
 v 2.6
 
 * New
