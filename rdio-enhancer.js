@@ -273,14 +273,14 @@ function injectedJs() {
 							},
 							success: function(success_data) {
 								results = success_data;
-								jQuery.each(tracks, function(index, value) {
+								jQuery.each(tracks, function(index, track) {
 									//console.debug (value.attributes.source.attributes.albumKey);
 									//console.debug (success_data.result[value.attributes.source.attributes.albumKey]);
-									//console.debug (success_data.result[value.attributes.source.attributes.albumKey].releaseDate);	
-									if (success_data.result[value.attributes.source.attributes.albumKey].releaseDate) {
-										value.attributes.source.attributes.releaseDate = results.result[value.attributes.source.attributes.albumKey].releaseDate;										
+									//console.debug (success_data.result[value.attributes.source.attributes.albumKey].releaseDate);
+									if (success_data.result[track.attributes.source.attributes.albumKey].releaseDate) {
+										track.attributes.source.attributes.releaseDate = results.result[track.attributes.source.attributes.albumKey].releaseDate;
 									}
-									
+
 								});
 								R.enhancer.show_message("Sorted Playlist by Release Date" );
 								R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByReleaseDate)});
@@ -288,7 +288,7 @@ function injectedJs() {
 								R.enhancer.current_playlist.render();
 							}
 						});
-					};	
+					};
 
 					b.sortPlaylistReverse = function() {
 						R.enhancer.show_message("Reversed Playlist")
@@ -297,7 +297,7 @@ function injectedJs() {
 						R.enhancer.current_playlist.model.setPlaylistOrder();
 						R.enhancer.current_playlist.render();
 					}
-					
+
 					b.sortPlaylistRandom = function() {
 						R.enhancer.show_message("Randomized Playlist")
 						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
@@ -346,7 +346,7 @@ function injectedJs() {
 								value: "removeduplicates",
 								callback: this.removeDuplicates,
 								visible: true
-							});							
+							});
 						}
 						return submenu;
 					};
@@ -399,17 +399,15 @@ function injectedJs() {
 						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
 						var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
 						var keys = ["name", "artist", "album", "trackNum"];
-						jQuery.each(tracks, function(index, value) {
+						jQuery.each(tracks, function(index, track) {
 							var values = [];
-							for(var i in keys) {
-								var key = keys[i];
-								values.push(value.attributes.source.attributes[key]);
-							}
-							
-							values.pop();
+							jQuery.each(keys, function(index, key) {
+								values.push(track.attributes.source.attributes[key]);
+							});
+
 							csv.push('"' + values.join('","') + '"');
 						});
-						
+
 						var pom = document.createElement('a');
 						pom.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv.join("\n")));
 						pom.setAttribute('download', R.enhancer.current_playlist.model.get("name") + '.csv');
@@ -528,7 +526,7 @@ function injectedJs() {
 							this.$(".tracklist_toolbar .ActionMenu").append('<span class="sortpl button"><span class="text">Sort Playlist</span><span class="dropdown_arrow"></span></span>');
 						}
 						this.$(".tracklist_toolbar .ActionMenu").append('<span class="enhancerextras button"><span class="text">Extras</span><span class="dropdown_arrow"></span></span>');
-						
+
 					}
 
 				}
@@ -755,7 +753,7 @@ function injectedJs() {
 			else {
 				return R.enhancer.sortByAlbum(a, b);
 			}
-		},		
+		},
 
 		sortByTrackName: function(a, b) {
 			var trackname_a = a.attributes.source.attributes.name.toLowerCase(),
