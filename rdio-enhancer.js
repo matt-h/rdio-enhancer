@@ -249,7 +249,7 @@ function injectedJs() {
 						R.enhancer.current_playlist.model.setPlaylistOrder();
 						R.enhancer.current_playlist.render();
 					};
-					b.sortPlaylistbySong = function() {					
+					b.sortPlaylistbySong = function() {
 						R.enhancer.show_message("Sorted Playlist by Song Name");
 						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
 						R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByTrackName)});
@@ -279,7 +279,7 @@ function injectedJs() {
 									//console.debug (success_data.result[value.attributes.source.attributes.albumKey].releaseDate);	
 									if (success_data.result[value.attributes.source.attributes.albumKey].releaseDate) {
 										value.attributes.source.attributes.releaseDate = results.result[value.attributes.source.attributes.albumKey].releaseDate;										
-									}								
+									}
 									
 								});
 								R.enhancer.show_message("Sorted Playlist by Release Date" );
@@ -287,7 +287,7 @@ function injectedJs() {
 								R.enhancer.current_playlist.model.setPlaylistOrder();
 								R.enhancer.current_playlist.render();
 							}
-						});					
+						});
 					};	
 
 					b.sortPlaylistReverse = function() {
@@ -297,7 +297,7 @@ function injectedJs() {
 						R.enhancer.current_playlist.model.setPlaylistOrder();
 						R.enhancer.current_playlist.render();
 					}
-									
+					
 					b.sortPlaylistRandom = function() {
 						R.enhancer.show_message("Randomized Playlist")
 						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
@@ -326,7 +326,7 @@ function injectedJs() {
 								label: "Export to CSV",
 								value: "exporttocsv",
 								callback: this.exportToCSV,
-								visible: false // not visible until this feature works properly
+								visible: true
 							}, {
 								label: "Fork Playlist",
 								value: "forkplaylist",
@@ -396,21 +396,24 @@ function injectedJs() {
 					};
 
 					b.exportToCSV = function() {
-						// This almost works.. leaving disabled for now.
 						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-						var i = tracks.length;
 						var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
-						while(i--) {
-							csv.push([
-								'"' + tracks[i].get("name") + '"',
-								'"' + tracks[i].get("artist") + '"',
-								'"' + tracks[i].get("album") + '"',
-								tracks[i].get("trackNum")
-							].join(","));
-						}
-						var blob = new Blob([csv.join("\n")], { "type" : "text\/csv" });
-						location.href = window.webkitURL.createObjectURL(blob);
-						//window.open('data:text/csv;charset=utf8,' + encodeURIComponent(csv.join("\n")), "playlist_export.csv", "width=600, height=200");
+						var keys = ["name", "artist", "album", "trackNum"];
+						jQuery.each(tracks, function(index, value) {
+							var values = [];
+							for(var i in keys) {
+								var key = keys[i];
+								values.push(value.attributes.source.attributes[key]);
+							}
+							
+							values.pop();
+							csv.push('"' + values.join('","') + '"');
+						});
+						
+						var pom = document.createElement('a');
+						pom.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv.join("\n")));
+						pom.setAttribute('download', R.enhancer.current_playlist.model.get("name") + '.csv');
+						pom.click();
 					};
 					b.forkPlaylist = function() {
 						R.loader.load(["Dialog.EditPlaylistDialog.Rdio"], function() {
