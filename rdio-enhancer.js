@@ -236,74 +236,74 @@ function injectedJs() {
 							}];
 					};
 					b.sortPlaylistbyArtist = function() {
-						R.enhancer.show_message("Sorted Playlist by Artist");
-						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-						R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByArtist)});
-						R.enhancer.current_playlist.model.setPlaylistOrder();
-						R.enhancer.current_playlist.render();
+						R.enhancer.getTracks(function(tracks) {
+							R.enhancer.show_message("Sorted Playlist by Artist");
+							R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.sort(R.enhancer.sortByArtist)));
+							R.enhancer.current_playlist.render();
+						});
 					};
 					b.sortPlaylistbyAlbum = function() {
-						R.enhancer.show_message("Sorted Playlist by Album");
-						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-						R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByAlbum)});
-						R.enhancer.current_playlist.model.setPlaylistOrder();
-						R.enhancer.current_playlist.render();
+						R.enhancer.getTracks(function(tracks) {
+							R.enhancer.show_message("Sorted Playlist by Album");
+							R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.sort(R.enhancer.sortByAlbum)));
+							R.enhancer.current_playlist.render();
+						});
 					};
 					b.sortPlaylistbySong = function() {
-						R.enhancer.show_message("Sorted Playlist by Song Name");
-						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-						R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByTrackName)});
-						R.enhancer.current_playlist.model.setPlaylistOrder();
-						R.enhancer.current_playlist.render();
+						R.enhancer.getTracks(function(tracks) {
+							R.enhancer.show_message("Sorted Playlist by Song Name");
+							R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.sort(R.enhancer.sortByTrackName)));
+							R.enhancer.current_playlist.render();
+						});
 					};
 
 					b.sortPlaylistbyReleaseDate = function() {
-						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-						var album_keys = [];
-						var results = {};
-						jQuery.each(tracks, function(index, value) {
-							var album_key = value.attributes.source.attributes.albumKey;
-							album_keys.push(album_key);
-						});
-						R.Api.request({
-							method: "get",
-							content: {
-								keys: album_keys,
-								extras: ["-*", "releaseDate"]
-							},
-							success: function(success_data) {
-								results = success_data;
-								jQuery.each(tracks, function(index, track) {
-									//console.debug (value.attributes.source.attributes.albumKey);
-									//console.debug (success_data.result[value.attributes.source.attributes.albumKey]);
-									//console.debug (success_data.result[value.attributes.source.attributes.albumKey].releaseDate);
-									if (success_data.result[track.attributes.source.attributes.albumKey].releaseDate) {
-										track.attributes.source.attributes.releaseDate = results.result[track.attributes.source.attributes.albumKey].releaseDate;
-									}
+						R.enhancer.getTracks(function(tracks) {
+							var album_keys = [];
+							var results = {};
+							jQuery.each(tracks, function(index, value) {
+								var album_key = value.attributes.source.attributes.albumKey;
+								album_keys.push(album_key);
+							});
+							R.Api.request({
+								method: "get",
+								content: {
+									keys: album_keys,
+									extras: ["-*", "releaseDate"]
+								},
+								success: function(success_data) {
+									results = success_data;
+									jQuery.each(tracks, function(index, track) {
+										//console.debug (value.attributes.source.attributes.albumKey);
+										//console.debug (success_data.result[value.attributes.source.attributes.albumKey]);
+										//console.debug (success_data.result[value.attributes.source.attributes.albumKey].releaseDate);
+										if (success_data.result[track.attributes.source.attributes.albumKey].releaseDate) {
+											track.attributes.source.attributes.releaseDate = results.result[track.attributes.source.attributes.albumKey].releaseDate;
+										}
 
-								});
-								R.enhancer.show_message("Sorted Playlist by Release Date" );
-								R.enhancer.current_playlist.model.set({"model": tracks.sort(R.enhancer.sortByReleaseDate)});
-								R.enhancer.current_playlist.model.setPlaylistOrder();
-								R.enhancer.current_playlist.render();
-							}
+									});
+									R.enhancer.show_message("Sorted Playlist by Release Date" );
+									R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.sort(R.enhancer.sortByReleaseDate)));
+									R.enhancer.current_playlist.render();
+								}
+							});
 						});
 					};
 
 					b.sortPlaylistReverse = function() {
-						R.enhancer.show_message("Reversed Playlist")
-						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-						R.enhancer.current_playlist.model.set({"model": tracks.reverse()});
-						R.enhancer.current_playlist.model.setPlaylistOrder();
-						R.enhancer.current_playlist.render();
+						R.enhancer.getTracks(function(tracks) {
+							R.enhancer.show_message("Reversed Playlist")
+							R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.reverse()));
+							R.enhancer.current_playlist.render();
+						});
 					}
 
 					b.sortPlaylistRandom = function() {
-						R.enhancer.show_message("Randomized Playlist")
-						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-						R.enhancer.current_playlist.model.set({"model": tracks.shuffle()});
-						R.enhancer.current_playlist.model.setPlaylistOrder();
-						R.enhancer.current_playlist.render();
+						R.enhancer.getTracks(function(tracks) {
+							R.enhancer.show_message("Randomized Playlist")
+							R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.shuffle()));
+							R.enhancer.current_playlist.render();
+						});
 					};
 					// End Sort menu functions
 
@@ -351,67 +351,69 @@ function injectedJs() {
 						return submenu;
 					};
 					b.removeDuplicates = function() {
-						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-						var playlist_key = R.enhancer.current_playlist.model.get("key");
-						// This is a bit hackish, but the API doesn't work well.
-						// The removeFromPlaylist function is based more on the index and count than the tracklist
-						// So order matters!!
-						// First we sort the playlist to unique tracks first and then duplicate tracks last.
-						// Then just chop off all the duplicate tracks.
-						// This way we only need one call to removeFromPlaylist to remove all the duplicates.
-						var unique_tracks = [];
-						var duplicate_tracks = [];
-						jQuery.each(tracks, function(index, value) {
-							var track_key = value.attributes.source.attributes.key;
-							if(jQuery.inArray(track_key, unique_tracks) === -1) {
-								unique_tracks.push(track_key);
-							}
-							else {
-								duplicate_tracks.push(track_key);
-							}
-						});
-						if(duplicate_tracks.length > 0) {
-							R.enhancer.show_message('Removing Duplicates from "' + R.enhancer.current_playlist.model.get("name") + '"');
-							R.enhancer.sortPlaylist(playlist_key, unique_tracks.concat(duplicate_tracks), function(status) {
-								if (status.result) {
-									R.Api.request({
-										method: "removeFromPlaylist",
-										content: {
-											playlist: playlist_key,
-											index: unique_tracks.length,
-											count: duplicate_tracks.length,
-											tracks: duplicate_tracks,
-											extras: ["-*", "duration", "Playlist.PUBLISHED"]
-										},
-										success: function(success_data) {
-											R.enhancer.current_playlist.render();
-										}
-									});
+						R.enhancer.getTracks(function(tracks) {
+							var playlist_key = R.enhancer.current_playlist.model.get("key");
+							// This is a bit hackish, but the API doesn't work well.
+							// The removeFromPlaylist function is based more on the index and count than the tracklist
+							// So order matters!!
+							// First we sort the playlist to unique tracks first and then duplicate tracks last.
+							// Then just chop off all the duplicate tracks.
+							// This way we only need one call to removeFromPlaylist to remove all the duplicates.
+							var unique_tracks = [];
+							var duplicate_tracks = [];
+							jQuery.each(tracks, function(index, value) {
+								var track_key = value.attributes.source.attributes.key;
+								if(jQuery.inArray(track_key, unique_tracks) === -1) {
+									unique_tracks.push(track_key);
+								}
+								else {
+									duplicate_tracks.push(track_key);
 								}
 							});
-						}
-						else {
-							R.enhancer.show_message('There are no duplicates to remove "' + R.enhancer.current_playlist.model.get("name") + '"');
-						}
+							if(duplicate_tracks.length > 0) {
+								R.enhancer.show_message('Removing Duplicates from "' + R.enhancer.current_playlist.model.get("name") + '"');
+								R.enhancer.sortPlaylist(playlist_key, unique_tracks.concat(duplicate_tracks), function(status) {
+									if (status.result) {
+										R.Api.request({
+											method: "removeFromPlaylist",
+											content: {
+												playlist: playlist_key,
+												index: unique_tracks.length,
+												count: duplicate_tracks.length,
+												tracks: duplicate_tracks,
+												extras: ["-*", "duration", "Playlist.PUBLISHED"]
+											},
+											success: function(success_data) {
+												R.enhancer.current_playlist.render();
+											}
+										});
+									}
+								});
+							}
+							else {
+								R.enhancer.show_message('There are no duplicates to remove "' + R.enhancer.current_playlist.model.get("name") + '"');
+							}
+						});
 					};
 
 					b.exportToCSV = function() {
-						var tracks = R.enhancer.current_playlist.model.get("tracks").models;
-						var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
-						var keys = ["name", "artist", "album", "trackNum"];
-						jQuery.each(tracks, function(index, track) {
-							var values = [];
-							jQuery.each(keys, function(index, key) {
-								values.push(track.attributes.source.attributes[key]);
+						R.enhancer.getTracks(function(tracks) {
+							var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
+							var keys = ["name", "artist", "album", "trackNum"];
+							jQuery.each(tracks, function(index, track) {
+								var values = [];
+								jQuery.each(keys, function(index, key) {
+									values.push(track.attributes.source.attributes[key]);
+								});
+
+								csv.push('"' + values.join('","') + '"');
 							});
 
-							csv.push('"' + values.join('","') + '"');
+							var pom = document.createElement('a');
+							pom.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv.join("\n")));
+							pom.setAttribute('download', R.enhancer.current_playlist.model.get("name") + '.csv');
+							pom.click();
 						});
-
-						var pom = document.createElement('a');
-						pom.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv.join("\n")));
-						pom.setAttribute('download', R.enhancer.current_playlist.model.get("name") + '.csv');
-						pom.click();
 					};
 					b.forkPlaylist = function() {
 						R.loader.load(["Dialog.EditPlaylistDialog.Rdio"], function() {
@@ -649,13 +651,18 @@ function injectedJs() {
 			return messages;
 		},
 
-		show_message: function(msg_txt) {
+		show_message: function(msg_txt, force_message) {
 			switch(R.enhancer.get_setting("notifications")) {
+				case "none":
+					// Force message option shows the message if the user settings are none
+					if(force_message !== true) {
+						break;
+					}
 				case false:
 				case "html":
 					var messages = R.enhancer.get_messages();
 					jQuery('<div class="enhancer_message_box">' + msg_txt + '</div>').appendTo(messages).fadeIn("slow").delay(10000).fadeOut("slow", function() {
-						$(this).remove();
+						jQuery(this).remove();
 					});
 				break;
 				case "chrome":
@@ -693,6 +700,33 @@ function injectedJs() {
 				}
 				return R.Api.origRequest.apply(this, arguments);
 			};
+		},
+
+		getTracks: function(callback) {
+			if(R.enhancer.current_playlist.model.get("tracks").length() == R.enhancer.current_playlist.model.get("tracks").limit()) {
+				// Currently have all tracks
+				callback(R.enhancer.current_playlist.model.get("tracks").models);
+			}
+			else {
+				R.enhancer.show_message('Fetching playlist data... Please wait. If your playlist is long this can take awhile.', true);
+				R.enhancer.current_playlist.model.get("tracks").fetch({
+					"success": function(self,resp,newModels) {
+						callback(R.enhancer.current_playlist.model.get("tracks").models);
+					},
+					"error": function() {
+						R.enhancer.show_message('There was an error getting the playlist data, if you have a long playlist try scrolling down to load more first and then try the action again.', true);
+					}
+				});
+			}
+		},
+
+		getKeys: function(tracks) {
+			var keys = [];
+			jQuery.each(tracks, function(index, track) {
+				var track_key = track.attributes.source.attributes.key;
+				keys.push(track_key);
+			});
+			return keys;
 		},
 
 		// Sort functions
@@ -802,14 +836,6 @@ function injectedJs() {
 				},
 				success: callback
 			});
-		},
-
-		getKeysFromTracks: function(tracks) {
-			var keys = [];
-			for(var key in tracks) {
-				keys.push(tracks[key].attributes.key);
-			}
-			return keys;
 		},
 
 		isInQueue: function(data, queue_type) {
