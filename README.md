@@ -12,14 +12,24 @@ Current Features
 	* Filter Collection by tags
 * Playlist Additions
 	* Sort Playlist
-		* Sort by Artist, Album, Song Name, or Randomize
+		* Sort by Artist, Album, Song Name, Release Date, or Randomize
 	* Remove Duplicates
+	* Export to CSV
 	* Fork Playlist
 	* Add playlists to other playlists
 
 
 Changelog
 ================
+v 2.7
+
+* Fixes
+
+	* Fix playlist sorting to handle Rdio lazy load of playlists (this made sorting unloaded playlists slow)
+* New
+
+	* Export to CSV - [JaderDias](https://github.com/JaderDias)
+
 v 2.6.1
 
 * Fixes
