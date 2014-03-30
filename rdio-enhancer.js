@@ -539,7 +539,26 @@ function injectedJs() {
 						b.orig_onRendered.call(this);
 						R.enhancer.collection = this;
 
+						this.$(".ViewToggle").last().after('<nav class="ViewToggle clearfix"><button type="button" class="button dropdown exportToCSV">Export to CSV<span class="dropdown_arrow"></span></button></nav>');
 						this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div></span>');
+						this.$(".exportToCSV").on("click", _.bind(function() {
+							var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
+							var keys = ["name", "artist", "album", "trackNum"];
+							var tracks = R.enhancer.collection.collectionModel.models;
+							jQuery.each(tracks, function(index, track) {
+								var values = [];
+								jQuery.each(keys, function(index, key) {
+									values.push(track.attributes[key]);
+								});
+
+								csv.push('"' + values.join('","') + '"');
+							});
+
+							var pom = document.createElement('a');
+							pom.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv.join("\n")));
+							pom.setAttribute('download', 'collection.csv');
+							pom.click();
+						}, this));
 						this.$(".tags_filter").on("keyup", _.bind(function() {
 							var value = this.$(".tags_filter").val().trim();
 							var albums = R.enhancer.getAlbumsForTag(value);
