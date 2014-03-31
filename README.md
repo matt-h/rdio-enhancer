@@ -10,6 +10,7 @@ Current Features
 * Collection
 	* Add Tags to Albums (tags are stored in local storage)
 	* Filter Collection by tags
+	* Export to CSV
 * Playlist Additions
 	* Sort Playlist
 		* Sort by Artist, Album, Song Name, Release Date, or Randomize
@@ -21,6 +22,13 @@ Current Features
 
 Changelog
 ================
+
+v 2.7.1
+
+* New
+
+	* Export to CSV for Collection - [JaderDias](https://github.com/JaderDias)
+
 v 2.7
 
 * Fixes
