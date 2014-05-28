@@ -7,20 +7,6 @@ function codeToString(f) {
 }
 
 function injectedJs() {
-	// Add a Fisher-Yates shuffle function to Array
-	Array.prototype.shuffle = function () {
-		var i = this.length, j, temp;
-		if (i == 0) return;
-		while (--i) {
-			j = Math.floor(Math.random() * (i + 1));
-
-			// Swap values
-			temp = this[i];
-			this[i] = this[j];
-			this[j] = temp;
-		}
-	};
-
 	// Used to store play next items
 	var play_next_queue = [];
 
@@ -301,7 +287,7 @@ function injectedJs() {
 					b.sortPlaylistRandom = function() {
 						R.enhancer.getTracks(function(tracks) {
 							R.enhancer.show_message("Randomized Playlist")
-							R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.shuffle()));
+							R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(R.enhancer.shuffle(tracks)));
 							R.enhancer.current_playlist.render();
 						});
 					};
@@ -851,6 +837,23 @@ function injectedJs() {
 			else {
 				return 0;
 			}
+		},
+
+		// Shuffle function to shuffle tracks (or any array)
+		shuffle: function(tracks) {
+			// Sort tracks with a Fisher-Yates shuffle
+			var i = tracks.length, j, temp;
+			if (i > 0) {
+				while (--i) {
+					j = Math.floor(Math.random() * (i + 1));
+
+					// Swap values
+					temp = tracks[i];
+					tracks[i] = tracks[j];
+					tracks[j] = temp;
+				}
+			}
+			return tracks;
 		},
 
 		// Sort playlist
