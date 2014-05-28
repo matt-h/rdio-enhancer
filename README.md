@@ -13,7 +13,7 @@ Current Features
 	* Export to CSV
 * Playlist Additions
 	* Sort Playlist
-		* Sort by Artist, Album, Song Name, Release Date, or Randomize
+		* Sort by Artist, Album, Song Name, Release Date, Reverse, or Randomize
 	* Remove Duplicates
 	* Export to CSV
 	* Fork Playlist
@@ -22,6 +22,12 @@ Current Features
 
 Changelog
 ================
+
+v 2.7.2
+
+* Fixes
+
+	* Fixed randomize playlist
 
 v 2.7.1
 
