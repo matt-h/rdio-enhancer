@@ -23,6 +23,12 @@ Current Features
 Changelog
 ================
 
+v 2.7.3
+
+* Fixes
+
+	* Fixed chrome notification if you were using them
+
 v 2.7.2
 
 * Fixes
