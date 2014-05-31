@@ -672,12 +672,34 @@ function injectedJs() {
 					});
 				break;
 				case "chrome":
-					var notification = webkitNotifications.createNotification(
-						"",  // icon url - can be relative
-						"Rdio Notification",  // notification title
-						msg_txt  // notification body text
-					);
-					notification.show();
+					if ("Notification" in window) {
+						if (Notification.permission === "granted") {
+							// If it's okay let's create a notification
+							var notification = new Notification("Rdio Notification", {body: msg_txt});
+						}
+						else if (Notification.permission !== 'denied') {
+							Notification.requestPermission(function (permission) {
+
+								// Whatever the user answers, we make sure we store the information
+								if(!('permission' in Notification)) {
+									Notification.permission = permission;
+								}
+
+								// If the user is okay, let's create a notification
+								if (permission === "granted") {
+									var notification = new Notification("Rdio Notification", {body: msg_txt});
+								}
+							});
+						}
+					}
+					else if("webkitNotifications" in window) {
+						var notification = webkitNotifications.createNotification(
+							"",  // icon url - can be relative
+							"Rdio Notification",  // notification title
+							msg_txt  // notification body text
+						);
+						notification.show();
+					}
 				break;
 			}
 		},
