@@ -14,6 +14,7 @@ function injectedJs() {
 	R.enhancer = {
 		log: function(item) {
 			delete console.log;
+			console.log("==============================================");
 			console.log(item);
 		},
 
@@ -157,37 +158,32 @@ function injectedJs() {
 				if(a == "TrackList") {
 
 				}
-				if(a == "ActionMenu") {
-					b.orig_events = b.events;
-					b.events = function() {
-						var local_events = b.orig_events.call(this);
-						local_events["click .sortpl"] = "onToggleSortMenu";
-						local_events["click .enhancerextras"] = "onToggleExtrasMenu";
-						return local_events;
-					};
+				if(a == "Widgets.SourceControls") {
+					b._getMenuOptions_orig = b._getMenuOptions;
+					b._getMenuOptions = function() {
+						var menuOptions = b._getMenuOptions_orig.call(this);
 
-					// Re-enable add to playlist for playlists
-					// I think the only reason this wasn't enabled for playlists was because
-					// it wasn't implemented for Dialog.EditPlaylistDialog
-					// My modification to Dialog.EditPlaylistDialog allows it.
-					b.addToPlaylistItemVisible = function() {
-						return true;
+						if (this.model instanceof R.Models.Playlist) {
+							// Re-enable add to playlist for playlists
+							// I think the only reason this wasn't enabled for playlists was because
+							// it wasn't implemented for Dialog.EditPlaylistDialog
+							// My modification to Dialog.EditPlaylistDialog allows it.
+							menuOptions.push(this._getAddToPlaylistOption());
+
+							menuOptions.push({
+								label: "Sort Playlist",
+								value: new Backbone.Collection(this.getSortMenuOptions())
+							});
+							menuOptions.push({
+								label: "Extras",
+								value: new Backbone.Collection(this.getExtraMenuOptions())
+							});
+
+						}
+						return menuOptions;
 					};
 
 					// Inject Sort menu functions
-					b.onToggleSortMenu = function(a) {
-						this.ToggleSortMenu(), R.Utils.stopEvent(a);
-					};
-					b.ToggleSortMenu = function(a) {
-						this.enhancer_sort_menu || (this.checkIsInQueue(), this.enhancer_sort_menu = this.addChild(new
-						R.Components.Menu({
-							positionOverEl: this.$el.find(".sortpl"),
-							defaultContext: this,
-							alignFirstItem: true,
-							model: new Backbone.Collection(this.getSortMenuOptions())
-						})), this.listen(this.enhancer_sort_menu, "open", this.onSortMenuOpened));
-						this.enhancer_sort_menu.toggle(a);
-					};
 					b.getSortMenuOptions = function() {
 						return [{
 								label: "Sort by Artist",
@@ -294,19 +290,6 @@ function injectedJs() {
 					// End Sort menu functions
 
 					// Inject Extras menu functions
-					b.onToggleExtrasMenu = function(a) {
-						this.ToggleExtrasMenu(), R.Utils.stopEvent(a);
-					};
-					b.ToggleExtrasMenu = function() {
-						this.enhancer_extras_menu || (this.checkIsInQueue(), this.enhancer_extras_menu = this.addChild(new
-						R.Components.Menu({
-							positionOverEl: this.$el.find(".enhancerextras"),
-							defaultContext: this,
-							alignFirstItem: true,
-							model: new Backbone.Collection(this.getExtraMenuOptions())
-						})), this.listen(this.enhancer_extras_menu, "open", this.onExtrasMenuOpened));
-						this.enhancer_extras_menu.toggle(a);
-					};
 					b.getExtraMenuOptions = function() {
 						var submenu = [{
 								label: "Export to CSV",
@@ -326,7 +309,7 @@ function injectedJs() {
 							}
 						];
 
-						if (R.enhancer.current_playlist.model.canEdit()) {
+						if (this.model.canEdit()) {
 							submenu.unshift ({
 								label: "Remove Duplicates",
 								value: "removeduplicates",
@@ -410,7 +393,9 @@ function injectedJs() {
 							editor.open()
 						});
 					};
+				}
 
+				if(a == "ActionMenu") {
 					b.orig_getMenuOptions = b.getMenuOptions;
 					b.getMenuOptions = function() {
 
@@ -503,18 +488,13 @@ function injectedJs() {
 					};
 				}
 
-				if(a == "PlaylistPage") {
-					//console.log(b);
+				if(a == "Catalog2014.Playlist") {
+					//R.enhancer.log(b);
 					b.orig_onRendered = b.onRendered;
 					b.onRendered = function() {
 						b.orig_onRendered.call(this);
-						// R.enhancer.log(this.model);
+						//R.enhancer.log(this.model);
 						R.enhancer.current_playlist = this;
-						if (R.enhancer.current_playlist.model.canEdit()) {
-							this.$(".tracklist_toolbar .ActionMenu").append('<span class="sortpl button"><span class="text">Sort Playlist</span><span class="dropdown_arrow"></span></span>');
-						}
-						this.$(".tracklist_toolbar .ActionMenu").append('<span class="enhancerextras button"><span class="text">Extras</span><span class="dropdown_arrow"></span></span>');
-
 					}
 
 				}
