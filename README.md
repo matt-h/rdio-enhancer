@@ -23,6 +23,12 @@ Current Features
 Changelog
 ================
 
+v 2.7.4
+
+* Fixes
+
+	* Re-Add playlist controls to new playlist menus
+
 v 2.7.3
 
 * Fixes
