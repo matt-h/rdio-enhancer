@@ -783,16 +783,20 @@ function injectedJs() {
             if (artist_a_firstword == "the" || artist_a_firstword == "a") {
                 var newArtist = ""
                 for(i = 1; i < artist_a_split.length; i++) {
-                    newArtist += artist_a_split[i];
+                    newArtist += artist_a_split[i] + " ";
                 }
-                artist_a = newArtist;
+                if (newArtist != "") {
+                    artist_a = newArtist;
+                }
             }
             if (artist_b_firstword == "the" || artist_b_firstword == "a") {
                 var newArtist = ""
                 for(i = 1; i < artist_b_split.length; i++) {
-                    newArtist += artist_b_split[i];
+                    newArtist += artist_b_split[i] + " ";
                 }
-                artist_b = newArtist;
+                if (newArtist != "") {
+                    artist_b = newArtist;
+                }
             }
 
 			if (artist_a < artist_b) {
