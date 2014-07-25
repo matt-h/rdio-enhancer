@@ -775,27 +775,21 @@ function injectedJs() {
 			artist_b = artist_b.toLowerCase();
 
 			var artist_a_split = artist_a.split(" ");
-			var artist_b_split = artist_b.split(" ");
 
-			var artist_a_firstword = artist_a_split[0].toLowerCase();
-			var artist_b_firstword = artist_b_split[0].toLowerCase();
+			if(artist_a_split[0]) {
+				var artist_a_firstword = artist_a_split.shift();
 
-			if (artist_a_firstword == "the" || artist_a_firstword == "a") {
-				var newArtist = ""
-				for(i = 1; i < artist_a_split.length; i++) {
-					newArtist += artist_a_split[i] + " ";
-				}
-				if (newArtist != "") {
-					artist_a = newArtist;
+				if (artist_a_firstword == "the" || artist_a_firstword == "a") {
+					artist_a = artist_a_split.join(" ") + " " + artist_a_firstword;
 				}
 			}
-			if (artist_b_firstword == "the" || artist_b_firstword == "a") {
-				var newArtist = ""
-				for(i = 1; i < artist_b_split.length; i++) {
-					newArtist += artist_b_split[i] + " ";
-				}
-				if (newArtist != "") {
-					artist_b = newArtist;
+			
+			var artist_b_split = artist_b.split(" ");
+			if(artist_b_split[0]) {
+				var artist_b_firstword = artist_b_split.shift();
+
+				if (artist_b_firstword == "the" || artist_b_firstword == "a") {
+					artist_b = artist_b_split.join(" ") + " " + artist_b_firstword;
 				}
 			}
 
