@@ -385,12 +385,14 @@ function injectedJs() {
 						});
 					};
 					b.forkPlaylist = function() {
-						R.loader.load(["Dialog.EditPlaylistDialog.Rdio"], function() {
-							var editor =new R.Components.Dialog.EditPlaylistDialog.Rdio({
-								sourceModel: R.enhancer.current_playlist.model,
-								isNew: true
+						R.enhancer.getTracks(function(tracks) {
+							R.loader.load(["Dialog.EditPlaylistDialog.Rdio"], function() {
+								var editor = new R.Components.Dialog.EditPlaylistDialog.Rdio({
+									sourceModel: R.enhancer.current_playlist.model,
+									isNew: true
+								});
+								editor.open()
 							});
-							editor.open()
 						});
 					};
 				}
