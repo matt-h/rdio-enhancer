@@ -23,6 +23,13 @@ Current Features
 Changelog
 ================
 
+v 2.7.5
+
+* Fixes
+
+	* Sorting by Artist ignores the "The" and "A" at the beginning of the name - [Marc Shilling](https://github.com/marcshilling)
+	* Fix forking and adding a playlist to a playlist to make sure all tracks are loaded first
+	
 v 2.7.4
 
 * Fixes
