@@ -37,10 +37,37 @@ function injectedJs() {
 						track_list = [model.get("key")];
 					}
 					else if(model_type == "p") {
-						var models = model.get("tracks").models;
-						for(var x = 0; x < models.length; x++) {
-							track_list.push(models[x].attributes.source.attributes.key);
-						}
+						R.enhancer.getModels(
+							function(tracks) {
+								for(var x = 0; x < tracks.length; x++) {
+									track_list.push(tracks[x].attributes.source.attributes.key);
+								}
+								
+								// This is redundant, but it works
+								if(playlist_this.has("tracks")) {
+									playlist_this.get("tracks").addSource(model);
+								}
+								var d = {
+									method: "addToPlaylist",
+									content: {
+										playlist: playlist_this.get("key"),
+										tracks: track_list,
+										extras: ["-*", "duration", "Playlist.PUBLISHED"]
+									},
+									success: function(a) {
+										R.enhancer.show_message('Added "' + model.get("name") + '" to Playlist "' + playlist_this.get("name") + '"');
+										a.result && playlist_this.set(a.result);
+										a[0] && a[0].result && playlist_this.set(a[0].result);
+									}
+								};
+								playlist_this._requestQueue.push(d);
+							},
+							model.get("tracks"),
+							'Fetching Playlist data... Please wait. If your Playlist is large this can take awhile.',
+							'There was an error getting the Playlist data, if you have a large Playlist try scrolling down to load more first and then try the action again.'
+						);
+						// The function continues in the callback, so return here
+						return;
 					}
 
 					if(playlist_this.has("tracks")) {
