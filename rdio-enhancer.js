@@ -713,36 +713,36 @@ function injectedJs() {
 		},
 
 		getTracks: function(callback) {
-			if(R.enhancer.current_playlist.model.get("tracks").length() == R.enhancer.current_playlist.model.get("tracks").limit()) {
-				// Currently have all tracks
-				callback(R.enhancer.current_playlist.model.get("tracks").models);
-			}
-			else {
-				R.enhancer.show_message('Fetching playlist data... Please wait. If your playlist is long this can take awhile.', true);
-				R.enhancer.current_playlist.model.get("tracks").fetch({
-					"success": function(self,resp,newModels) {
-						callback(R.enhancer.current_playlist.model.get("tracks").models);
-					},
-					"error": function() {
-						R.enhancer.show_message('There was an error getting the playlist data, if you have a long playlist try scrolling down to load more first and then try the action again.', true);
-					}
-				});
-			}
+			R.enhancer.getModels(
+				callback,
+				R.enhancer.current_playlist.model.get("tracks"),
+				'Fetching playlist data... Please wait. If your playlist is long this can take awhile.',
+				'There was an error getting the playlist data, if you have a long playlist try scrolling down to load more first and then try the action again.'
+			);
 		},
 
 		getCollectionTracks: function(callback) {
-			if(R.enhancer.collection.collectionModel.length() == R.enhancer.collection.collectionModel.limit()) {
+			R.enhancer.getModels(
+				callback,
+				R.enhancer.collection.collectionModel,
+				'Fetching Collection data... Please wait. If your Collection is large this can take awhile.',
+				'There was an error getting the Collection data, if you have a large collection try scrolling down to load more first and then try the action again.'
+			);
+		},
+		
+		getModels: function(callback, model, fetch_message, error_message) {
+			if(model.length() == model.limit()) {
 				// Currently have all models
-				callback(R.enhancer.collection.collectionModel.models);
+				callback(model.models);
 			}
 			else {
-				R.enhancer.show_message('Fetching Collection data... Please wait. If your Collection is large this can take awhile.', true);
-				R.enhancer.collection.collectionModel.fetch({
+				R.enhancer.show_message(fetch_message, true);
+				model.fetch({
 					"success": function(self,resp,newModels) {
-						callback(R.enhancer.collection.collectionModel.models);
+						callback(model.models);
 					},
 					"error": function() {
-						R.enhancer.show_message('There was an error getting the Collection data, if you have a large collection try scrolling down to load more first and then try the action again.', true);
+						R.enhancer.show_message(error_message, true);
 					}
 				});
 			}
