@@ -42,7 +42,7 @@ function injectedJs() {
 								for(var x = 0; x < tracks.length; x++) {
 									track_list.push(tracks[x].attributes.source.attributes.key);
 								}
-								
+
 								// This is redundant, but it works
 								if(playlist_this.has("tracks")) {
 									playlist_this.get("tracks").addSource(model);
@@ -92,6 +92,11 @@ function injectedJs() {
 		},
 
 		overwrite_create: function() {
+			if(R.Component && R.Component.orig_create) {
+				// Safety check so this can't be called twice.
+				return;
+			}
+
 			if(!R.Component || !R.Component.create) {
 				window.setTimeout(R.enhancer.overwrite_create, 100);
 				return;
@@ -714,15 +719,19 @@ function injectedJs() {
 		},
 
 		overwrite_request: function() {
+			if(R.Api && R.Api.origRequest) {
+				// Safety check so this can't be called twice.
+				return;
+			}
 			if(!R.Api || !R.Api.request) {
 				window.setTimeout(R.enhancer.overwrite_request, 100);
 				return;
 			}
 
+
 			R.Api.origRequest = R.Api.request;
 			R.Api.request = function() {
 				var args = arguments[0];
-				//console.log("Request");
 				//R.enhancer.log(arguments);
 
 				// The Create/Add to playlist normally only takes one track and puts it in an array.
@@ -756,7 +765,7 @@ function injectedJs() {
 				'There was an error getting the Collection data, if you have a large collection try scrolling down to load more first and then try the action again.'
 			);
 		},
-		
+
 		getModels: function(callback, model, fetch_message, error_message) {
 			if(model.length() == model.limit()) {
 				// Currently have all models
@@ -812,7 +821,7 @@ function injectedJs() {
 					artist_a = artist_a_split.join(" ") + " " + artist_a_firstword;
 				}
 			}
-			
+
 			var artist_b_split = artist_b.split(" ");
 			if(artist_b_split[0]) {
 				var artist_b_firstword = artist_b_split.shift();
