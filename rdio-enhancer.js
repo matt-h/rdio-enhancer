@@ -13,9 +13,8 @@ function injectedJs() {
 	// Build the Rdio Enhancer Class
 	R.enhancer = {
 		log: function(item) {
-			delete console.log;
-			console.log("==============================================");
-			console.log(item);
+			console.debug("==============================================");
+			console.debug(item);
 		},
 
 		overwrite_playlist: function() {
@@ -190,30 +189,107 @@ function injectedJs() {
 				if(a == "TrackList") {
 
 				}
-				if(a == "Widgets.SourceControls") {
-					b._getMenuOptions_orig = b._getMenuOptions;
-					b._getMenuOptions = function() {
-						var menuOptions = b._getMenuOptions_orig.call(this);
 
-						if (this.model instanceof R.Models.Playlist) {
-							// Re-enable add to playlist for playlists
-							// I think the only reason this wasn't enabled for playlists was because
-							// it wasn't implemented for Dialog.EditPlaylistDialog
-							// My modification to Dialog.EditPlaylistDialog allows it.
-							menuOptions.push(this._getAddToPlaylistOption());
+				if(a == "ActionMenu") {
+					b.orig_getMenuOptions = b.getMenuOptions;
+					b.getMenuOptions = function() {
+						var menuOptions = b.orig_getMenuOptions.call(this);
 
-							menuOptions.push({
-								label: "Sort Playlist",
-								value: new Backbone.Collection(this.getSortMenuOptions())
+						menuOptions.push({
+							label: "Sort Playlist",
+							value: new Backbone.Collection(this.getSortMenuOptions()),
+							visible: this.playlistFeaturesVisible
+						});
+						menuOptions.push({
+							label: "Extras",
+							value: new Backbone.Collection(this.getExtraMenuOptions()),
+							visible: this.playlistFeaturesVisible
+						});
+
+						var tags = [];
+						_.each(R.enhancer.getTagsForAlbum(this.model.get("albumKey")), _.bind(function(tag) {
+							tags.push({
+								label: tag,
+								value: tag,
+								maxWidth: 150,
+								context: a,
+								useTitle: true,
+								hasDelete: true,
+								deleteTooltip: "Remove from tags",
+								callback: _.bind(this.onRemoveFromTags, this, tag)
 							});
-							menuOptions.push({
-								label: "Extras",
-								value: new Backbone.Collection(this.getExtraMenuOptions())
-							});
+						}, this));
 
-						}
+						tags = new Backbone.Collection(tags);
+
+						menuOptions.push({
+							label: "Tags",
+							value: "tags",
+							visible: this.manageTagsVisible,
+							value: new Backbone.Collection([{
+													embed: true,
+													value: tags,
+													visible: tags.length > 0
+												}, {
+													visible: tags.length > 0
+												}, {
+													label: t("Add Tags..."),
+													value: "manageTags",
+													callback: _.bind(this.onManageTags, this)
+												}])
+
+						})
+
 						return menuOptions;
 					};
+
+					b.onRemoveFromTags = function(tagToRemove) {
+						R.enhancer.removeTag(tagToRemove, this.model.get("albumKey"));
+						this.menuDirty = true;
+					};
+
+					b.onManageTags = function(model) {
+						var that = this;
+
+						R.loader.load(["Dialog.FormDialog"], function() {
+							var dialog = new R.Components.Dialog.FormDialog({
+								title: "Add Tags"
+							});
+
+							dialog.onOpen = function() {
+								// Form with only a textarea allowing the user to enter tags (each separated by a comma)
+								this.$(".body").html('<ul class="form_list"><li class="form_row no_line"><div class="label">Tags :<br/>(comma separated)</div><div class="field"><textarea style="height:72px;" class="tags" name="tags"></textarea></div></li></ul>');
+								this.$(".body .tags").val(R.enhancer.getTagsForAlbum(that.model.get("albumKey")));
+								this.$(".footer .blue").removeAttr("disabled");
+
+								// Save the tags when the user click on confirm
+								this.$(".footer .blue").on("click", _.bind(function() {
+									var tags = _.map(this.$(".body .tags").val().trim().split(","), function(tag) { return tag.trim(); });
+
+									// Compare with previously set tags - might need to remove some
+									var previousTags = R.enhancer.getTagsForAlbum(that.model.get("albumKey"));
+
+									_.each(_.difference(previousTags, tags), function(removedTag) {
+										R.enhancer.removeTag(removedTag, that.model.get("albumKey"));
+									});
+
+									R.enhancer.setTags(tags, that.model.get("albumKey"));
+									that.menuDirty = true;
+									this.close();
+								}, this));
+							};
+							dialog.open()
+						});
+					};
+
+					b.playlistFeaturesVisible = function() {
+						return this.model instanceof R.Models.Playlist;
+					};
+
+					b.manageTagsVisible = function() {
+						return this.model.get("type") === "al";
+					};
+
 
 					// Inject Sort menu functions
 					b.getSortMenuOptions = function() {
@@ -426,99 +502,6 @@ function injectedJs() {
 								editor.open()
 							});
 						});
-					};
-				}
-
-				if(a == "ActionMenu") {
-					b.orig_getMenuOptions = b.getMenuOptions;
-					b.getMenuOptions = function() {
-
-						var options = b.orig_getMenuOptions.call(this);
-
-						var tags = [];
-						_.each(R.enhancer.getTagsForAlbum(this.model.get("albumKey")), _.bind(function(tag) {
-							tags.push({
-								label: tag,
-								value: tag,
-								maxWidth: 150,
-								context: a,
-								useTitle: true,
-								hasDelete: true,
-								deleteTooltip: "Remove from tags",
-								callback: _.bind(this.onRemoveFromTags, this, tag)
-							});
-						}, this));
-
-						tags = new Backbone.Collection(tags);
-
-						options.push({
-							label: "Tags",
-							value: "tags",
-							visible: this.manageTagsVisible,
-							value: new Backbone.Collection([{
-													embed: true,
-													value: tags,
-													visible: tags.length > 0
-												}, {
-													visible: tags.length > 0
-												}, {
-													label: t("Add Tags..."),
-													value: "manageTags",
-													callback: _.bind(this.onManageTags, this)
-												}])
-
-						})
-
-						return options;
-					};
-
-					b.onRemoveFromTags = function(tagToRemove) {
-						R.enhancer.removeTag(tagToRemove, this.model.get("albumKey"));
-						this.menuDirty = true;
-					};
-
-					b.onManageTags = function(model) {
-						var that = this;
-
-						R.loader.load(["Dialog.FormDialog"], function() {
-							var dialog = new R.Components.Dialog.FormDialog({
-								title: "Add Tags"
-							});
-
-							dialog.onOpen = function() {
-								// Form with only a textarea allowing the user to enter tags (each separated by a comma)
-								this.$(".body").html('<ul class="form_list"><li class="form_row no_line"><div class="label">Tags :<br/>(comma separated)</div><div class="field"><textarea style="height:72px;" class="tags" name="tags"></textarea></div></li></ul>');
-								this.$(".body .tags").val(R.enhancer.getTagsForAlbum(that.model.get("albumKey")));
-								this.$(".footer .blue").removeAttr("disabled");
-
-								// Save the tags when the user click on confirm
-								this.$(".footer .blue").on("click", _.bind(function() {
-									var tags = _.map(this.$(".body .tags").val().trim().split(","), function(tag) { return tag.trim(); });
-
-									// Compare with previously set tags - might need to remove some
-									var previousTags = R.enhancer.getTagsForAlbum(that.model.get("albumKey"));
-
-									_.each(_.difference(previousTags, tags), function(removedTag) {
-										R.enhancer.removeTag(removedTag, that.model.get("albumKey"));
-									});
-
-									R.enhancer.setTags(tags, that.model.get("albumKey"));
-									that.menuDirty = true;
-									this.close();
-								}, this));
-							};
-							dialog.open()
-						});
-					};
-
-					b.manageTagsVisible = function() {
-						return this.model.get("type") === "al";
-					};
-					// End Extras menu functions
-
-					b.orig_onRendered = b.onRendered;
-					b.onRendered = function() {
-						b.orig_onRendered.call(this);
 					};
 				}
 
