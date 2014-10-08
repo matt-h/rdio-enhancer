@@ -186,6 +186,7 @@ function injectedJs() {
 
 				}
 				if(a == "Widgets.SourceControls") {
+					debugger;
 					b._getMenuOptions_orig = b._getMenuOptions;
 					b._getMenuOptions = function() {
 						var menuOptions = b._getMenuOptions_orig.call(this);
@@ -536,7 +537,7 @@ function injectedJs() {
 						R.enhancer.collection = this;
 
 						this.$(".section_header").append('<nav class="ViewToggle clearfix"><button type="button" class="button exportToCSV">Export to CSV</button></nav>');
-						this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div></span>');
+						this.$(".section_header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div></span>');
 						this.$(".exportToCSV").on("click", _.bind(function() {
 							var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
 							var keys = ["name", "artist", "album", "trackNum"];
@@ -557,20 +558,24 @@ function injectedJs() {
 							});
 						}, this));
 						this.$(".tags_filter").on("keyup", _.bind(function() {
+							var collectionModel = R.enhancer.collection.downloadsModel;
+							if (a == "Profile.Favorites") {
+								collectionModel = R.enhancer.collection.favoritesModel;
+							}
 							var value = this.$(".tags_filter").val().trim();
 							var albums = R.enhancer.getAlbumsForTag(value);
 
 							if (albums.length > 0) {
-								R.enhancer.collection.collectionModel.reset();
-								R.enhancer.collection.collectionModel.on("loaded", function() {
-									R.enhancer.collection.collectionModel.off("loaded");
-									R.enhancer.collection.collectionModel.manualFiltered = true;
-									R.enhancer.collection.collectionModel.reset(R.enhancer.collection.collectionModel.filter(function(model) { return _.contains(albums, model.get("albumKey")); }));
+								collectionModel.reset();
+								collectionModel.on("loaded", function() {
+									collectionModel.off("loaded");
+									collectionModel.manualFiltered = true;
+									collectionModel.reset(collectionModel.filter(function(model) { return _.contains(albums, model.get("albumKey")); }));
 								});
-								R.enhancer.collection.collectionModel.get({start:R.enhancer.collection.collectionModel.models.length, count:R.enhancer.collection.collectionModel._limit});
-							} else if (R.enhancer.collection.collectionModel.manualFiltered) {
-								R.enhancer.collection.collectionModel.manualFiltered = false;
-								R.enhancer.collection.collectionModel.reset();
+								collectionModel.get({start:collectionModel.models.length, count:collectionModel._limit});
+							} else if (collectionModel.manualFiltered) {
+								collectionModel.manualFiltered = false;
+								collectionModel.reset();
 							}
 						}, this));
 					}
