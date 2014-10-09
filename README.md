@@ -13,7 +13,7 @@ Current Features
 	* Export to CSV
 * Playlist Additions
 	* Sort Playlist
-		* Sort by Artist, Album, Song Name, Release Date, Reverse, or Randomize
+		* Sort by Artist, Album, Song Name, Release Date, Play Count, Reverse, or Randomize
 	* Remove Duplicates
 	* Export to CSV
 	* Fork Playlist
@@ -23,11 +23,15 @@ Current Features
 Changelog
 ================
 
-v 2.7.6
+v 2.8
 
 * Fixes
 
-	* Fix the menu items not showing up after Rdio update.
+	* Fix the menu items not showing up after Rdio update
+
+* New
+
+	* Sort Playlist by Play Count
 
 v 2.7.5
 
