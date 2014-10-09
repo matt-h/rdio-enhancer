@@ -314,11 +314,16 @@ function injectedJs() {
 								callback: this.sortPlaylistbyReleaseDate,
 								visible: true
 							}, {
+								label: "Sort by Play Count",
+								value: "sortbyplaycount",
+								callback: this.sortPlaylistbyPlayCount,
+								visible: true
+							}, {
 								label: "Reverse",
 								value: "reverse",
 								callback: this.sortPlaylistReverse,
 								visible: true
-							},  {
+							}, {
 								label: "Randomize",
 								value: "randomize",
 								callback: this.sortPlaylistRandom,
@@ -372,6 +377,30 @@ function injectedJs() {
 									});
 									R.enhancer.show_message("Sorted Playlist by Release Date" );
 									R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.sort(R.enhancer.sortByReleaseDate)));
+									R.enhancer.current_playlist.render();
+								}
+							});
+						});
+					};
+
+					b.sortPlaylistbyPlayCount = function() {
+						R.enhancer.getTracks(function(tracks) {
+							var results = {};
+							R.Api.request({
+								method: "get",
+								content: {
+									keys: R.enhancer.getKeys(tracks),
+									extras: ["-*", "playCount"]
+								},
+								success: function(success_data) {
+									results = success_data;
+									jQuery.each(tracks, function(index, track) {
+										if (success_data.result[track.attributes.source.attributes.key].playCount) {
+											track.attributes.source.attributes.playCount = results.result[track.attributes.source.attributes.key].playCount;
+										}
+									});
+									R.enhancer.show_message("Sorted Playlist by Play Count" );
+									R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.sort(R.enhancer.sortByPlayCount)));
 									R.enhancer.current_playlist.render();
 								}
 							});
@@ -841,8 +870,6 @@ function injectedJs() {
 			var date_a = a.attributes.source.attributes.releaseDate,
 			date_b = b.attributes.source.attributes.releaseDate;
 
-
-
 			if (date_a < date_b) {
 				return -1;
 			}
@@ -851,6 +878,21 @@ function injectedJs() {
 			}
 			else {
 				return R.enhancer.sortByAlbum(a, b);
+			}
+		},
+
+		sortByPlayCount: function(a, b) {
+			var count_a = a.attributes.source.attributes.playCount,
+			count_b = b.attributes.source.attributes.playCount;
+
+			if (count_a < count_b) {
+				return 1;
+			}
+			else if (count_a > count_b) {
+				return -1;
+			}
+			else {
+				return R.enhancer.sortByArtist(a, b);
 			}
 		},
 
