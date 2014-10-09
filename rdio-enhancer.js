@@ -353,7 +353,9 @@ function injectedJs() {
 							var results = {};
 							jQuery.each(tracks, function(index, value) {
 								var album_key = value.attributes.source.attributes.albumKey;
-								album_keys.push(album_key);
+								if(album_keys.indexOf(album_key) === -1) {
+									album_keys.push(album_key);
+								}
 							});
 							R.Api.request({
 								method: "get",
@@ -364,13 +366,9 @@ function injectedJs() {
 								success: function(success_data) {
 									results = success_data;
 									jQuery.each(tracks, function(index, track) {
-										//console.debug (value.attributes.source.attributes.albumKey);
-										//console.debug (success_data.result[value.attributes.source.attributes.albumKey]);
-										//console.debug (success_data.result[value.attributes.source.attributes.albumKey].releaseDate);
 										if (success_data.result[track.attributes.source.attributes.albumKey].releaseDate) {
 											track.attributes.source.attributes.releaseDate = results.result[track.attributes.source.attributes.albumKey].releaseDate;
 										}
-
 									});
 									R.enhancer.show_message("Sorted Playlist by Release Date" );
 									R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.sort(R.enhancer.sortByReleaseDate)));
