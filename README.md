@@ -23,6 +23,12 @@ Current Features
 Changelog
 ================
 
+v 2.8.1
+
+* Fixes
+
+	* Fix more menu on alubms
+
 v 2.8
 
 * Fixes
