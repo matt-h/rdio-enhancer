@@ -444,7 +444,7 @@ function injectedJs() {
 							}
 						];
 
-						if (this.model.canEdit()) {
+						if (this.model.canEdit !== undefined && this.model.canEdit()) {
 							submenu.unshift ({
 								label: "Remove Duplicates",
 								value: "removeduplicates",
