@@ -27,7 +27,7 @@ v 2.8.1
 
 * Fixes
 
-	* Fix more menu on alubms
+	* Fix more menu on albums
 
 v 2.8
 
