@@ -282,6 +282,11 @@ function injectedJs() {
 						});
 					};
 
+					b.addToPlaylistItemVisible_orig = b.addToPlaylistItemVisible;
+					b.addToPlaylistItemVisible = function() {
+						return b.addToPlaylistItemVisible_orig.call(this) || this.playlistFeaturesVisible();
+					};
+
 					b.playlistFeaturesVisible = function() {
 						return this.model instanceof R.Models.Playlist;
 					};

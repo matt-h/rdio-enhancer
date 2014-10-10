@@ -23,6 +23,12 @@ Current Features
 Changelog
 ================
 
+v 2.8.2
+
+* Fixes
+
+	* Fix add playlist to other playlists so it works again
+
 v 2.8.1
 
 * Fixes
