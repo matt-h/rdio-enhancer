@@ -548,22 +548,21 @@ function injectedJs() {
 
 				}
 
-				if (a == "Profile.Collection") {
+				if (a == "Profile.Favorites") {
 					b.orig_onRendered = b.onRendered;
 					b.onRendered = function() {
 						b.orig_onRendered.call(this);
-						R.enhancer.collection = this;
 
-						this.$(".ViewToggle").last().after('<nav class="ViewToggle clearfix"><button type="button" class="button exportToCSV">Export to CSV</button></nav>');
+						this.$(".section_header").append('<button type="button" class="button exportToCSV with_text">Export to CSV</button>');
 						this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div></span>');
-						this.$(".exportToCSV").on("click", _.bind(function() {
+						this.$(".exportToCSV").on("click", function(e) {
 							var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
 							var keys = ["name", "artist", "album", "trackNum"];
-							R.enhancer.getCollectionTracks(function(tracks) {
-								jQuery.each(tracks, function(index, track) {
+							R.enhancer.getFavoriteTracks(function(data) {
+								jQuery.each(data.result.items, function(index, track) {
 									var values = [];
 									jQuery.each(keys, function(index, key) {
-										values.push(track.attributes[key]);
+										values.push(track[key]);
 									});
 
 									csv.push('"' + values.join('","') + '"');
@@ -574,7 +573,7 @@ function injectedJs() {
 								pom.setAttribute('download', 'collection.csv');
 								pom.click();
 							});
-						}, this));
+						});
 						this.$(".tags_filter").on("keyup", _.bind(function() {
 							var value = this.$(".tags_filter").val().trim();
 							var albums = R.enhancer.getAlbumsForTag(value);
@@ -772,13 +771,20 @@ function injectedJs() {
 			);
 		},
 
-		getCollectionTracks: function(callback) {
-			R.enhancer.getModels(
-				callback,
-				R.enhancer.collection.collectionModel,
-				'Fetching Collection data... Please wait. If your Collection is large this can take awhile.',
-				'There was an error getting the Collection data, if you have a large collection try scrolling down to load more first and then try the action again.'
-			);
+		getFavoriteTracks: function(callback) {
+			R.enhancer.show_message('Fetching Favorites data... Please wait. If your Favorites is large this can take awhile.', true);
+			R.Api.request({
+				method: "getTracksInCollection",
+				content: {
+
+				},
+				success: function(success_data) {
+					callback(success_data);
+				},
+				error: function() {
+					R.enhancer.show_message('There was an error getting the Favorites data, if you have a large amount of favorites try scrolling down to load more first and then try the action again.', true);
+				}
+			});
 		},
 
 		getModels: function(callback, model, fetch_message, error_message) {
