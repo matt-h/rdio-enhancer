@@ -7,9 +7,7 @@ rdio enhancer
 Current Features
 ================
 
-* Collection
-	* Add Tags to Albums (tags are stored in local storage)
-	* Filter Collection by tags
+* Favorites
 	* Export to CSV
 * Playlist Additions
 	* Sort Playlist
@@ -22,6 +20,12 @@ Current Features
 
 Changelog
 ================
+
+v 2.8.3
+
+* Fixes
+
+	* Fix Export Favorites to CSV
 
 v 2.8.2
 
