@@ -13,9 +13,8 @@ function injectedJs() {
 	// Build the Rdio Enhancer Class
 	R.enhancer = {
 		log: function(item) {
-			delete console.log;
-			console.log("==============================================");
-			console.log(item);
+			console.debug("==============================================");
+			console.debug(item);
 		},
 
 		overwrite_playlist: function() {
@@ -42,7 +41,7 @@ function injectedJs() {
 								for(var x = 0; x < tracks.length; x++) {
 									track_list.push(tracks[x].attributes.source.attributes.key);
 								}
-								
+
 								// This is redundant, but it works
 								if(playlist_this.has("tracks")) {
 									playlist_this.get("tracks").addSource(model);
@@ -92,6 +91,11 @@ function injectedJs() {
 		},
 
 		overwrite_create: function() {
+			if(R.Component && R.Component.orig_create) {
+				// Safety check so this can't be called twice.
+				return;
+			}
+
 			if(!R.Component || !R.Component.create) {
 				window.setTimeout(R.enhancer.overwrite_create, 100);
 				return;
@@ -185,30 +189,112 @@ function injectedJs() {
 				if(a == "TrackList") {
 
 				}
-				if(a == "Widgets.SourceControls") {
-					b._getMenuOptions_orig = b._getMenuOptions;
-					b._getMenuOptions = function() {
-						var menuOptions = b._getMenuOptions_orig.call(this);
 
-						if (this.model instanceof R.Models.Playlist) {
-							// Re-enable add to playlist for playlists
-							// I think the only reason this wasn't enabled for playlists was because
-							// it wasn't implemented for Dialog.EditPlaylistDialog
-							// My modification to Dialog.EditPlaylistDialog allows it.
-							menuOptions.push(this._getAddToPlaylistOption());
+				if(a == "ActionMenu") {
+					b.orig_getMenuOptions = b.getMenuOptions;
+					b.getMenuOptions = function() {
+						var menuOptions = b.orig_getMenuOptions.call(this);
 
-							menuOptions.push({
-								label: "Sort Playlist",
-								value: new Backbone.Collection(this.getSortMenuOptions())
+						menuOptions.push({
+							label: "Sort Playlist",
+							value: new Backbone.Collection(this.getSortMenuOptions()),
+							visible: this.playlistFeaturesVisible
+						});
+						menuOptions.push({
+							label: "Extras",
+							value: new Backbone.Collection(this.getExtraMenuOptions()),
+							visible: this.playlistFeaturesVisible
+						});
+
+						var tags = [];
+						_.each(R.enhancer.getTagsForAlbum(this.model.get("albumKey")), _.bind(function(tag) {
+							tags.push({
+								label: tag,
+								value: tag,
+								maxWidth: 150,
+								context: a,
+								useTitle: true,
+								hasDelete: true,
+								deleteTooltip: "Remove from tags",
+								callback: _.bind(this.onRemoveFromTags, this, tag)
 							});
-							menuOptions.push({
-								label: "Extras",
-								value: new Backbone.Collection(this.getExtraMenuOptions())
-							});
+						}, this));
 
-						}
+						tags = new Backbone.Collection(tags);
+
+						menuOptions.push({
+							label: "Tags",
+							value: "tags",
+							visible: this.manageTagsVisible,
+							value: new Backbone.Collection([{
+													embed: true,
+													value: tags,
+													visible: tags.length > 0
+												}, {
+													visible: tags.length > 0
+												}, {
+													label: t("Add Tags..."),
+													value: "manageTags",
+													callback: _.bind(this.onManageTags, this)
+												}])
+
+						})
+
 						return menuOptions;
 					};
+
+					b.onRemoveFromTags = function(tagToRemove) {
+						R.enhancer.removeTag(tagToRemove, this.model.get("albumKey"));
+						this.menuDirty = true;
+					};
+
+					b.onManageTags = function(model) {
+						var that = this;
+
+						R.loader.load(["Dialog.FormDialog"], function() {
+							var dialog = new R.Components.Dialog.FormDialog({
+								title: "Add Tags"
+							});
+
+							dialog.onOpen = function() {
+								// Form with only a textarea allowing the user to enter tags (each separated by a comma)
+								this.$(".body").html('<ul class="form_list"><li class="form_row no_line"><div class="label">Tags :<br/>(comma separated)</div><div class="field"><textarea style="height:72px;" class="tags" name="tags"></textarea></div></li></ul>');
+								this.$(".body .tags").val(R.enhancer.getTagsForAlbum(that.model.get("albumKey")));
+								this.$(".footer .blue").removeAttr("disabled");
+
+								// Save the tags when the user click on confirm
+								this.$(".footer .blue").on("click", _.bind(function() {
+									var tags = _.map(this.$(".body .tags").val().trim().split(","), function(tag) { return tag.trim(); });
+
+									// Compare with previously set tags - might need to remove some
+									var previousTags = R.enhancer.getTagsForAlbum(that.model.get("albumKey"));
+
+									_.each(_.difference(previousTags, tags), function(removedTag) {
+										R.enhancer.removeTag(removedTag, that.model.get("albumKey"));
+									});
+
+									R.enhancer.setTags(tags, that.model.get("albumKey"));
+									that.menuDirty = true;
+									this.close();
+								}, this));
+							};
+							dialog.open()
+						});
+					};
+
+					b.addToPlaylistItemVisible_orig = b.addToPlaylistItemVisible;
+					b.addToPlaylistItemVisible = function() {
+						return b.addToPlaylistItemVisible_orig.call(this) || this.playlistFeaturesVisible();
+					};
+
+					b.playlistFeaturesVisible = function() {
+						return this.model instanceof R.Models.Playlist;
+					};
+
+					b.manageTagsVisible = function() {
+						return this.model.get("type") === "al";
+					};
+
 
 					// Inject Sort menu functions
 					b.getSortMenuOptions = function() {
@@ -233,11 +319,16 @@ function injectedJs() {
 								callback: this.sortPlaylistbyReleaseDate,
 								visible: true
 							}, {
+								label: "Sort by Play Count",
+								value: "sortbyplaycount",
+								callback: this.sortPlaylistbyPlayCount,
+								visible: true
+							}, {
 								label: "Reverse",
 								value: "reverse",
 								callback: this.sortPlaylistReverse,
 								visible: true
-							},  {
+							}, {
 								label: "Randomize",
 								value: "randomize",
 								callback: this.sortPlaylistRandom,
@@ -272,7 +363,9 @@ function injectedJs() {
 							var results = {};
 							jQuery.each(tracks, function(index, value) {
 								var album_key = value.attributes.source.attributes.albumKey;
-								album_keys.push(album_key);
+								if(album_keys.indexOf(album_key) === -1) {
+									album_keys.push(album_key);
+								}
 							});
 							R.Api.request({
 								method: "get",
@@ -283,16 +376,36 @@ function injectedJs() {
 								success: function(success_data) {
 									results = success_data;
 									jQuery.each(tracks, function(index, track) {
-										//console.debug (value.attributes.source.attributes.albumKey);
-										//console.debug (success_data.result[value.attributes.source.attributes.albumKey]);
-										//console.debug (success_data.result[value.attributes.source.attributes.albumKey].releaseDate);
 										if (success_data.result[track.attributes.source.attributes.albumKey].releaseDate) {
 											track.attributes.source.attributes.releaseDate = results.result[track.attributes.source.attributes.albumKey].releaseDate;
 										}
-
 									});
 									R.enhancer.show_message("Sorted Playlist by Release Date" );
 									R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.sort(R.enhancer.sortByReleaseDate)));
+									R.enhancer.current_playlist.render();
+								}
+							});
+						});
+					};
+
+					b.sortPlaylistbyPlayCount = function() {
+						R.enhancer.getTracks(function(tracks) {
+							var results = {};
+							R.Api.request({
+								method: "get",
+								content: {
+									keys: R.enhancer.getKeys(tracks),
+									extras: ["-*", "playCount"]
+								},
+								success: function(success_data) {
+									results = success_data;
+									jQuery.each(tracks, function(index, track) {
+										if (success_data.result[track.attributes.source.attributes.key].playCount) {
+											track.attributes.source.attributes.playCount = results.result[track.attributes.source.attributes.key].playCount;
+										}
+									});
+									R.enhancer.show_message("Sorted Playlist by Play Count" );
+									R.enhancer.current_playlist.model.setPlaylistOrder(R.enhancer.getKeys(tracks.sort(R.enhancer.sortByPlayCount)));
 									R.enhancer.current_playlist.render();
 								}
 							});
@@ -336,7 +449,7 @@ function injectedJs() {
 							}
 						];
 
-						if (this.model.canEdit()) {
+						if (this.model.canEdit !== undefined && this.model.canEdit()) {
 							submenu.unshift ({
 								label: "Remove Duplicates",
 								value: "removeduplicates",
@@ -424,99 +537,6 @@ function injectedJs() {
 					};
 				}
 
-				if(a == "ActionMenu") {
-					b.orig_getMenuOptions = b.getMenuOptions;
-					b.getMenuOptions = function() {
-
-						var options = b.orig_getMenuOptions.call(this);
-
-						var tags = [];
-						_.each(R.enhancer.getTagsForAlbum(this.model.get("albumKey")), _.bind(function(tag) {
-							tags.push({
-								label: tag,
-								value: tag,
-								maxWidth: 150,
-								context: a,
-								useTitle: true,
-								hasDelete: true,
-								deleteTooltip: "Remove from tags",
-								callback: _.bind(this.onRemoveFromTags, this, tag)
-							});
-						}, this));
-
-						tags = new Backbone.Collection(tags);
-
-						options.push({
-							label: "Tags",
-							value: "tags",
-							visible: this.manageTagsVisible,
-							value: new Backbone.Collection([{
-													embed: true,
-													value: tags,
-													visible: tags.length > 0
-												}, {
-													visible: tags.length > 0
-												}, {
-													label: t("Add Tags..."),
-													value: "manageTags",
-													callback: _.bind(this.onManageTags, this)
-												}])
-
-						})
-
-						return options;
-					};
-
-					b.onRemoveFromTags = function(tagToRemove) {
-						R.enhancer.removeTag(tagToRemove, this.model.get("albumKey"));
-						this.menuDirty = true;
-					};
-
-					b.onManageTags = function(model) {
-						var that = this;
-
-						R.loader.load(["Dialog.FormDialog"], function() {
-							var dialog = new R.Components.Dialog.FormDialog({
-								title: "Add Tags"
-							});
-
-							dialog.onOpen = function() {
-								// Form with only a textarea allowing the user to enter tags (each separated by a comma)
-								this.$(".body").html('<ul class="form_list"><li class="form_row no_line"><div class="label">Tags :<br/>(comma separated)</div><div class="field"><textarea style="height:72px;" class="tags" name="tags"></textarea></div></li></ul>');
-								this.$(".body .tags").val(R.enhancer.getTagsForAlbum(that.model.get("albumKey")));
-								this.$(".footer .blue").removeAttr("disabled");
-
-								// Save the tags when the user click on confirm
-								this.$(".footer .blue").on("click", _.bind(function() {
-									var tags = _.map(this.$(".body .tags").val().trim().split(","), function(tag) { return tag.trim(); });
-
-									// Compare with previously set tags - might need to remove some
-									var previousTags = R.enhancer.getTagsForAlbum(that.model.get("albumKey"));
-
-									_.each(_.difference(previousTags, tags), function(removedTag) {
-										R.enhancer.removeTag(removedTag, that.model.get("albumKey"));
-									});
-
-									R.enhancer.setTags(tags, that.model.get("albumKey"));
-									that.menuDirty = true;
-									this.close();
-								}, this));
-							};
-							dialog.open()
-						});
-					};
-
-					b.manageTagsVisible = function() {
-						return this.model.get("type") === "al";
-					};
-					// End Extras menu functions
-
-					b.orig_onRendered = b.onRendered;
-					b.onRendered = function() {
-						b.orig_onRendered.call(this);
-					};
-				}
-
 				if(a == "Catalog2014.Playlist") {
 					//R.enhancer.log(b);
 					b.orig_onRendered = b.onRendered;
@@ -528,22 +548,21 @@ function injectedJs() {
 
 				}
 
-				if (a == "Profile.Collection") {
+				if (a == "Profile.Favorites") {
 					b.orig_onRendered = b.onRendered;
 					b.onRendered = function() {
 						b.orig_onRendered.call(this);
-						R.enhancer.collection = this;
 
-						this.$(".ViewToggle").last().after('<nav class="ViewToggle clearfix"><button type="button" class="button exportToCSV">Export to CSV</button></nav>');
+						this.$(".section_header").append('<button type="button" class="button exportToCSV with_text">Export to CSV</button>');
 						this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div></span>');
-						this.$(".exportToCSV").on("click", _.bind(function() {
+						this.$(".exportToCSV").on("click", function(e) {
 							var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
 							var keys = ["name", "artist", "album", "trackNum"];
-							R.enhancer.getCollectionTracks(function(tracks) {
-								jQuery.each(tracks, function(index, track) {
+							R.enhancer.getFavoriteTracks(function(data) {
+								jQuery.each(data.result.items, function(index, track) {
 									var values = [];
 									jQuery.each(keys, function(index, key) {
-										values.push(track.attributes[key]);
+										values.push(track[key]);
 									});
 
 									csv.push('"' + values.join('","') + '"');
@@ -554,7 +573,7 @@ function injectedJs() {
 								pom.setAttribute('download', 'collection.csv');
 								pom.click();
 							});
-						}, this));
+						});
 						this.$(".tags_filter").on("keyup", _.bind(function() {
 							var value = this.$(".tags_filter").val().trim();
 							var albums = R.enhancer.getAlbumsForTag(value);
@@ -714,15 +733,19 @@ function injectedJs() {
 		},
 
 		overwrite_request: function() {
+			if(R.Api && R.Api.origRequest) {
+				// Safety check so this can't be called twice.
+				return;
+			}
 			if(!R.Api || !R.Api.request) {
 				window.setTimeout(R.enhancer.overwrite_request, 100);
 				return;
 			}
 
+
 			R.Api.origRequest = R.Api.request;
 			R.Api.request = function() {
 				var args = arguments[0];
-				//console.log("Request");
 				//R.enhancer.log(arguments);
 
 				// The Create/Add to playlist normally only takes one track and puts it in an array.
@@ -748,15 +771,22 @@ function injectedJs() {
 			);
 		},
 
-		getCollectionTracks: function(callback) {
-			R.enhancer.getModels(
-				callback,
-				R.enhancer.collection.collectionModel,
-				'Fetching Collection data... Please wait. If your Collection is large this can take awhile.',
-				'There was an error getting the Collection data, if you have a large collection try scrolling down to load more first and then try the action again.'
-			);
+		getFavoriteTracks: function(callback) {
+			R.enhancer.show_message('Fetching Favorites data... Please wait. If your Favorites is large this can take awhile.', true);
+			R.Api.request({
+				method: "getTracksInCollection",
+				content: {
+
+				},
+				success: function(success_data) {
+					callback(success_data);
+				},
+				error: function() {
+					R.enhancer.show_message('There was an error getting the Favorites data, if you have a large amount of favorites try scrolling down to load more first and then try the action again.', true);
+				}
+			});
 		},
-		
+
 		getModels: function(callback, model, fetch_message, error_message) {
 			if(model.length() == model.limit()) {
 				// Currently have all models
@@ -812,7 +842,7 @@ function injectedJs() {
 					artist_a = artist_a_split.join(" ") + " " + artist_a_firstword;
 				}
 			}
-			
+
 			var artist_b_split = artist_b.split(" ");
 			if(artist_b_split[0]) {
 				var artist_b_firstword = artist_b_split.shift();
@@ -851,8 +881,6 @@ function injectedJs() {
 			var date_a = a.attributes.source.attributes.releaseDate,
 			date_b = b.attributes.source.attributes.releaseDate;
 
-
-
 			if (date_a < date_b) {
 				return -1;
 			}
@@ -861,6 +889,21 @@ function injectedJs() {
 			}
 			else {
 				return R.enhancer.sortByAlbum(a, b);
+			}
+		},
+
+		sortByPlayCount: function(a, b) {
+			var count_a = a.attributes.source.attributes.playCount,
+			count_b = b.attributes.source.attributes.playCount;
+
+			if (count_a < count_b) {
+				return 1;
+			}
+			else if (count_a > count_b) {
+				return -1;
+			}
+			else {
+				return R.enhancer.sortByArtist(a, b);
 			}
 		},
 

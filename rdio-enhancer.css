@@ -116,3 +116,10 @@
 	margin: 2px 10px 0 0;
 }
 
+.section_header .exportToCSV {
+	padding: 0 8px;
+	font-size: 12px;
+	color: #008fd5;
+	float:right;
+	margin-right:5px;
+}
