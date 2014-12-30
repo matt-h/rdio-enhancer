@@ -824,12 +824,17 @@ function injectedJs() {
 			else {
 				artist_a = a.attributes.source.attributes.albumArtist;
 			}
-			if(b.attributes.source.attributes.artist) {
-				artist_b = b.attributes.source.attributes.artist;
+			if (b.attributes.source.attributes) {
+				if(b.attributes.source.attributes.artist) {
+					artist_b = b.attributes.source.attributes.artist;
+				}
+				else {
+					artist_b = b.attributes.source.attributes.albumArtist;
+				}
 			}
 			else {
-				artist_b = b.attributes.source.attributes.albumArtist;
-			}
+				console.debug("artist sort: no attributes on b. a:" + a.attributes.source.attributes.artist + " b:" + b.attributes.source)		+				artist_b = b.attributes.source.attributes.albumArtist;
+ 			}
 			artist_a = artist_a.toLowerCase(),
 			artist_b = artist_b.toLowerCase();
 
