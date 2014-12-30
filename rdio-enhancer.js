@@ -1,5 +1,3 @@
-
-
 function codeToString(f) {
 	var args = [];
 	for (var i = 1; i < arguments.length; ++i) {
@@ -98,10 +96,12 @@ function injectedJs() {
 				window.setTimeout(R.enhancer.overwrite_create, 100);
 				return;
 			}
+
 			R.Component.orig_create = R.Component.create;
 			R.Component.create = function(a,b,c) {
-				R.enhancer.log("Rdio Enhancer:")
-				R.enhancer.log(a);
+				//R.enhancer.log("Rdio Enhancer:")
+				//R.enhancer.log(a);
+
 				if(a == "App.Header") {
 					// Add new event
 					b.orig_events = b.events;
@@ -528,19 +528,18 @@ function injectedJs() {
 
 				}
 
-				if (a == "Profile.Favorites" || a== "Profile.Downloads") {
-
+				if (a == "Profile.Collection") {
 					b.orig_onRendered = b.onRendered;
 					b.onRendered = function() {
 						b.orig_onRendered.call(this);
 						R.enhancer.collection = this;
 
-						this.$(".section_header").append('<nav class="ViewToggle clearfix"><button type="button" class="button exportToCSV">Export to CSV</button></nav>');
+						this.$(".ViewToggle").last().after('<nav class="ViewToggle clearfix"><button type="button" class="button exportToCSV">Export to CSV</button></nav>');
 						this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div></span>');
 						this.$(".exportToCSV").on("click", _.bind(function() {
 							var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
 							var keys = ["name", "artist", "album", "trackNum"];
-							R.enhancer.getCollectionTracks(a, function(tracks) {
+							R.enhancer.getCollectionTracks(function(tracks) {
 								jQuery.each(tracks, function(index, track) {
 									var values = [];
 									jQuery.each(keys, function(index, key) {
@@ -749,28 +748,14 @@ function injectedJs() {
 			);
 		},
 
-		getCollectionTracks: function(collection, callback) {
-			debugger;
-			//handy for string formatting
-			String.prototype.format = function () {
-			  var args = arguments;
-			  return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
-			};
-
-			var collectionModel = R.enhancer.collection.downloadsModel;
-			var collectionName = "downloads";
-			if (collection == "Profile.Favorites"){ 
-				collectionModel = R.enhancer.collection.favoritesModel;
-				collectionName ="favorites";
-			}
+		getCollectionTracks: function(callback) {
 			R.enhancer.getModels(
 				callback,
-				collectionModel,
-				'Fetching {0} data... Please wait. If you have a large amount of {0} this can take awhile.'.format(collectionName),
-				'There was an error getting the {0} data, if you have a large amount of {0} try scrolling down to load more first and then try the action again.'.format(collectionName)
+				R.enhancer.collection.collectionModel,
+				'Fetching Collection data... Please wait. If your Collection is large this can take awhile.',
+				'There was an error getting the Collection data, if you have a large collection try scrolling down to load more first and then try the action again.'
 			);
 		},
-
 		
 		getModels: function(callback, model, fetch_message, error_message) {
 			if(model.length() == model.limit()) {
