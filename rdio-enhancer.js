@@ -750,6 +750,7 @@ function injectedJs() {
 		},
 
 		getCollectionTracks: function(collection, callback) {
+			debugger;
 			//handy for string formatting
 			String.prototype.format = function () {
 			  var args = arguments;
