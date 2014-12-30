@@ -818,18 +818,28 @@ function injectedJs() {
 		sortByArtist: function(a, b) {
 			var artist_a,
 			artist_b;
-			if(a.attributes.source.attributes.artist) {
-				artist_a = a.attributes.source.attributes.artist;
+			if (b.attributes.source.attributes) {
+				if(a.attributes.source.attributes.artist) {
+					artist_a = a.attributes.source.attributes.artist;
+				}
+				else {
+					artist_a = a.attributes.source.attributes.albumArtist;
+				}
 			}
 			else {
-				artist_a = a.attributes.source.attributes.albumArtist;
-			}
-			if(b.attributes.source.attributes.artist) {
-				artist_b = b.attributes.source.attributes.artist;
+				console.debug("artist sort: no attributes on b. a:", a.attributes.source, " b:", b.attributes.source);
+ 			}
+			if (b.attributes.source.attributes) {
+				if(b.attributes.source.attributes.artist) {
+					artist_b = b.attributes.source.attributes.artist;
+				}
+				else {
+					artist_b = b.attributes.source.attributes.albumArtist;
+				}
 			}
 			else {
-				artist_b = b.attributes.source.attributes.albumArtist;
-			}
+				console.debug("artist sort: no attributes on b. a:", a.attributes.source, " b:", b.attributes.source);
+ 			}
 			artist_a = artist_a.toLowerCase(),
 			artist_b = artist_b.toLowerCase();
 
