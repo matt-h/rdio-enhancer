@@ -21,6 +21,13 @@ Current Features
 Changelog
 ================
 
+v 2.8.4
+
+* Fixes
+
+	* Handle edge case in which source has no attributes. Thanks @seans23
+	* update getTracksInCollection API call to only get 1000 tracks at a time to prevent server errors with large libraries
+
 v 2.8.3
 
 * Fixes
