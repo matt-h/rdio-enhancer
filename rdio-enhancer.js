@@ -558,8 +558,8 @@ function injectedJs() {
 						this.$(".exportToCSV").on("click", function(e) {
 							var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
 							var keys = ["name", "artist", "album", "trackNum"];
-							R.enhancer.getFavoriteTracks(function(data) {
-								jQuery.each(data.result.items, function(index, track) {
+							R.enhancer.getFavoriteTracks(function(tracks) {
+								jQuery.each(tracks, function(index, track) {
 									var values = [];
 									jQuery.each(keys, function(index, key) {
 										values.push(track[key]);
@@ -773,13 +773,24 @@ function injectedJs() {
 
 		getFavoriteTracks: function(callback) {
 			R.enhancer.show_message('Fetching Favorites data... Please wait. If your Favorites is large this can take awhile.', true);
+			R.enhancer._getFavoriteTracks(callback, [], 0);
+		},
+
+		_getFavoriteTracks: function(callback, tracks, offset) {
 			R.Api.request({
 				method: "getTracksInCollection",
 				content: {
-
+					start: offset,
+					count: 1000
 				},
 				success: function(success_data) {
-					callback(success_data);
+					tracks = tracks.concat(success_data.result.items);
+					if(success_data.result.total > tracks.length) {
+						R.enhancer._getFavoriteTracks(callback, tracks, tracks.length);
+					}
+					else {
+						callback(tracks);
+					}
 				},
 				error: function() {
 					R.enhancer.show_message('There was an error getting the Favorites data, if you have a large amount of favorites try scrolling down to load more first and then try the action again.', true);
