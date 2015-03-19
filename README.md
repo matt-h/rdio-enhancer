@@ -1,6 +1,8 @@
 rdio enhancer
 =================
 
+[![Join the chat at https://gitter.im/matt-h/rdio-enhancer](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/matt-h/rdio-enhancer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [Chrome Webstore](https://chrome.google.com/webstore/detail/hmaalfaappddkggilhahaebfhdmmmngf)
 
 
