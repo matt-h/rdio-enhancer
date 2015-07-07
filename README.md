@@ -23,6 +23,12 @@ Current Features
 Changelog
 ================
 
+v 2.8.5
+
+* Fixes
+
+	* update getTracksInCollection API call to handle large collections over 15000+ tracks
+
 v 2.8.4
 
 * Fixes

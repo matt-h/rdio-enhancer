@@ -556,9 +556,9 @@ function injectedJs() {
 						this.$(".section_header").append('<button type="button" class="button exportToCSV with_text">Export to CSV</button>');
 						this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div></span>');
 						this.$(".exportToCSV").on("click", function(e) {
-							var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
-							var keys = ["name", "artist", "album", "trackNum"];
 							R.enhancer.getFavoriteTracks(function(tracks) {
+								var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
+								var keys = ["name", "artist", "album", "trackNum"];
 								jQuery.each(tracks, function(index, track) {
 									var values = [];
 									jQuery.each(keys, function(index, key) {
@@ -773,20 +773,29 @@ function injectedJs() {
 
 		getFavoriteTracks: function(callback) {
 			R.enhancer.show_message('Fetching Favorites data... Please wait. If your Favorites is large this can take awhile.', true);
-			R.enhancer._getFavoriteTracks(callback, [], 0);
+			R.enhancer._getFavoriteTracks(callback, [], 0, 0);
 		},
 
-		_getFavoriteTracks: function(callback, tracks, offset) {
+		_getFavoriteTracks: function(callback, tracks, offset, start) {
 			R.Api.request({
 				method: "getTracksInCollection",
 				content: {
-					start: offset,
+					start: start + offset,
 					count: 1000
 				},
 				success: function(success_data) {
 					tracks = tracks.concat(success_data.result.items);
 					if(success_data.result.total > tracks.length) {
-						R.enhancer._getFavoriteTracks(callback, tracks, tracks.length);
+						if ( tracks.length >= 15000 ) {
+							callback(tracks);
+							var newstart = start + tracks.length;
+							tracks = []; // Clear out tracks to preserve memory
+							R.enhancer.show_message('You have a large amount of tracks, multiple CSV files will be downloaded.', true);
+							R.enhancer._getFavoriteTracks(callback, [], 0, newstart);
+						}
+						else {
+							R.enhancer._getFavoriteTracks(callback, tracks, tracks.length, start);
+						}
 					}
 					else {
 						callback(tracks);
