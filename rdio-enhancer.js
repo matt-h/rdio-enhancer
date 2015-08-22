@@ -548,7 +548,7 @@ function injectedJs() {
 
 				}
 
-				if (a == "Profile.Favorites") {
+				if(a == "Profile.Favorites") {
 					b.orig_onRendered = b.onRendered;
 					b.onRendered = function() {
 						b.orig_onRendered.call(this);
@@ -594,7 +594,78 @@ function injectedJs() {
 					}
 				}
 
-				if (a== "InfiniteScroll") {
+				if(a == "Menu") {
+					b.orig_onRendered = b.onRendered;
+					b.onRendered = function() {
+						b.orig_onRendered.call(this);
+						var menu = this;
+
+						if(menu.$('li:first-child').text().trim() == 'Name') {
+
+							// private scope for this menu component
+							(function() {
+
+								var item = $('<li class="option truncated_line">Unavailable Albums</li>'),
+									spinner = new R.Components.Spinner();
+									template = _.template(''
+										+ '<div class="album">'
+										+ '<div class="album_name"><a href="<%= albumUrl %>"><%= name %></a></div>'
+										+ '<div class="album_artist"><a href="<%= artistUrl %>"><%= artist %></a></div>'
+										+ '<div class="badge colored">Unavailable</div>'
+										+ '</div>'
+									);
+
+								menu.$('ul').append(item);
+								item.on('click', function(event) {
+
+									R.loader.load(["Dialog"], function() {
+										
+										var dialog = new R.Components.Dialog({
+											title: 'Unavailable Albums',
+											width: 550,
+											extraClassName: 'unavailable_dialog',
+											closeButton: 'Close'
+										});
+										
+										dialog.onOpen = function() {
+											
+											if(R.enhancer.cache['unavailable_albums']) {
+												dialog.onLoaded(R.enhancer.cache['unavailable_albums']);
+											} else {
+												this.$('.body .container').append(spinner.el);
+												spinner.spin();
+												R.enhancer.getUnavilableAlbums(function(results) {
+													// caching results of this call as it's unlikely that:
+													// 1) someone will add an unavailable album to their favorites
+													// 2) a previously saved album will change to unavailable during their session
+													R.enhancer.cache['unavailable_albums'] = results;
+													dialog.onLoaded(results);
+												});
+											}
+										};
+
+										dialog.onLoaded = function(data) {
+											var albums = [];
+											for(var i = 0, length = data.length, album; i < length; i++) {
+												// console.debug(data[i]);
+												albums.push(template(data[i]));
+											}
+											spinner.stop();
+											this.$('.body .container').html('<ul>' + albums.join('') + '</ul>');
+											this.onResize();
+										};
+
+										menu.close();
+										dialog.open();
+									});
+								});
+
+							})();
+						}
+					}
+				}
+
+				if(a == "InfiniteScroll") {
 					b.orig_ensureItemsLoaded = b.ensureItemsLoaded;
 					b.ensureItemsLoaded = function() {
 						// When manually filtered (by tagging system)
@@ -760,6 +831,27 @@ function injectedJs() {
 				}
 				return R.Api.origRequest.apply(this, arguments);
 			};
+		},
+
+		getUnavilableAlbums: function(callback) {
+			R.Api.request({
+				method: "getAlbumsInCollection",
+				content: {},
+				success: function(response) {
+					if(response.status != 'ok') {
+						R.enhancer.show_message('There was an error getting unavailable albums.', true);
+						return;
+					}
+					var unavailables = [];
+					$.each(response.result.items, function(index, album) {
+						if(!album.canStream) unavailables.push(album);
+					});
+					callback(unavailables);
+				},
+				error: function() {
+					R.enhancer.show_message('There was an error getting unavailable albums.', true);
+				}
+			});
 		},
 
 		getTracks: function(callback) {
@@ -1100,6 +1192,9 @@ function injectedJs() {
 			window.localStorage["/enhancer/tags/tag/" + tagToRemove] = JSON.stringify(albumsForTag);
 		}
 	};
+
+	// cache for storing results of API calls as needed
+	R.enhancer.cache = {};
 
 	// Call all of the overwrite functions to hook into Rdio
 	R.enhancer.overwrite_playlist();
