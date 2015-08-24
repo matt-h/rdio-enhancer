@@ -117,9 +117,39 @@
 }
 
 .section_header .exportToCSV {
-	padding: 0 8px;
+	padding: 0 12px;
 	font-size: 12px;
 	color: #008fd5;
 	float:right;
 	margin-right:5px;
+}
+
+.Dialog.unavailable_dialog .album {
+	margin: 0;
+	padding: 10px 0;
+    line-height: 18px;
+	border-bottom: 1px solid #e1e4e6;
+	position: relative;
+}
+.Dialog.unavailable_dialog .album:last-child {
+	border: 0;
+}
+.Dialog.unavailable_dialog .album_name,
+.Dialog.unavailable_dialog .album_artist {
+	max-width: 400px;
+}
+.Dialog.unavailable_dialog .album_artist a {
+	color: #94999c;
+}
+.Dialog.unavailable_dialog .badge {
+	position: absolute;
+	right: 0;
+	top: 50%;
+	margin: 0;
+	color: #fff;
+	cursor: default;
+	background: rgba(55, 70, 79, 0.6);
+	border-radius: 3px;
+	-webkit-transform: translateY(-50%);	
+	transform: translateY(-50%);
 }
