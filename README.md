@@ -11,6 +11,7 @@ Current Features
 
 * Favorites
 	* Export to CSV
+	* View Unavailable Albums
 * Playlist Additions
 	* Sort Playlist
 		* Sort by Artist, Album, Song Name, Release Date, Play Count, Reverse, or Randomize
@@ -22,6 +23,12 @@ Current Features
 
 Changelog
 ================
+
+v 2.9
+
+* New
+
+	* Unavailable Albums on Favorites - [nikrowell](https://github.com/nikrowell) [#53](https://github.com/matt-h/rdio-enhancer/pull/53)
 
 v 2.8.5
 
