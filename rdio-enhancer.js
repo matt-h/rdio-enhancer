@@ -17,6 +17,15 @@ function injectedJs() {
 			console.debug(item);
 		},
 
+		copyText: function copyText(text) {
+				var textField = document.createElement('textarea');
+				textField.innerText = text;
+				document.body.appendChild(textField);
+				textField.select();
+				document.execCommand('copy');
+				textField.remove();
+		},
+
 		overwrite_playlist: function() {
 			if(!R.Models || !R.Models.Playlist) {
 				window.setTimeout(R.enhancer.overwrite_playlist, 100);
@@ -94,6 +103,27 @@ function injectedJs() {
 			if(R.Component && R.Component.orig_create) {
 				// Safety check so this can't be called twice.
 				return;
+			}
+
+			if (R.Mixins && R.Mixins.artistShareMenu) {
+				R.Mixins.artistShareMenu.getShareSubOptions = function() {
+					return [
+						{
+							label: t('Copy link'),
+							context: this,
+							callback: function() { R.enhancer.copyText(this.model.get('shortUrl')); },
+							extraClassNames: 'share copy_link',
+							value: 'copy_link'
+						},
+						{
+							label: t('Share options'),
+							context: this,
+							callback: function() { this._shareButtonMenu.destroy(); this._doShare(); },
+							extraClassNames: 'share',
+							value: null
+						}
+					];
+				}
 			}
 
 			if(!R.Component || !R.Component.create) {
