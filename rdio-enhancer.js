@@ -214,19 +214,22 @@ function injectedJs() {
                         tags = new Backbone.Collection(tags);
                         menuOptions.push({
                             label: "Tags",
-                            value: "tags",
                             visible: this.manageTagsVisible,
-                            value: new Backbone.Collection([{
+                            value: new Backbone.Collection([
+                                {
                                     embed: true,
                                     value: tags,
                                     visible: tags.length > 0
-                                }, {
+                                },
+                                {
                                     visible: tags.length > 0
-                                }, {
+                                },
+                                {
                                     label: t("Add Tags..."),
                                     value: "manageTags",
                                     callback: _.bind(this.onManageTags, this)
-                                }])
+                                }
+                            ])
                         });
                         return menuOptions;
                     };
@@ -546,8 +549,7 @@ function injectedJs() {
                         var menu = this;
                         if (menu.$('li:first-child').text().trim() == 'Name') {
                             (function () {
-                                var item = $('<li class="option truncated_line">Unavailable Albums</li>'), spinner = new R.Components.Spinner();
-                                template = _.template(''
+                                var item = $('<li class="option truncated_line">Unavailable Albums</li>'), spinner = new R.Components.Spinner(), template = _.template(''
                                     + '<div class="album">'
                                     + '<div class="album_name"><a href="<%= albumUrl %>"><%= name %></a></div>'
                                     + '<div class="album_artist"><a href="<%= artistUrl %>"><%= artist %></a></div>'
@@ -987,7 +989,7 @@ function injectedJs() {
                     return JSON.parse(value);
                 }
                 else {
-                    var value = window.localStorage[tag];
+                    value = window.localStorage[tag];
                     if (value) {
                         window.localStorage["/enhancer/tags/tag/" + tag] = value;
                         window.localStorage.removeItem(tag);
@@ -1004,7 +1006,7 @@ function injectedJs() {
                     return JSON.parse(value);
                 }
                 else {
-                    var value = window.localStorage[albumKey];
+                    value = window.localStorage[albumKey];
                     if (value) {
                         window.localStorage["/enhancer/tags/ablum/" + albumKey] = value;
                         window.localStorage.removeItem(albumKey);

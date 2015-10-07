@@ -1,3 +1,5 @@
+declare var R, $, jQuery, t, Backbone, _, Notification, webkitNotifications, player_model, chrome;
+
 function codeToString(f) {
 	var args = [];
 	for (var i = 1; i < arguments.length; ++i) {
@@ -189,7 +191,7 @@ function injectedJs() {
 					b._getAttributes = function() {
 						var parent_get_attributes = R.Components.Dialog.EditPlaylistDialog.Rdio.callSuper(this, "_getAttributes");
 						if (this.model.isNew()) {
-							var track_list = "",
+							var track_list: any = "",
 								source_model = this.options.sourceModel;
 							if (source_model) {
 								var model_type = source_model.get("type");
@@ -252,22 +254,25 @@ function injectedJs() {
 
 						tags = new Backbone.Collection(tags);
 
-						menuOptions.push({
+						menuOptions.push(
+						{
 							label: "Tags",
-							value: "tags",
 							visible: this.manageTagsVisible,
-							value: new Backbone.Collection([{
-													embed: true,
-													value: tags,
-													visible: tags.length > 0
-												}, {
-													visible: tags.length > 0
-												}, {
-													label: t("Add Tags..."),
-													value: "manageTags",
-													callback: _.bind(this.onManageTags, this)
-												}])
-
+							value: new Backbone.Collection([
+								{
+									embed: true,
+									value: tags,
+									visible: tags.length > 0
+								},
+								{
+									visible: tags.length > 0
+								},
+								{
+									label: t("Add Tags..."),
+									value: "manageTags",
+									callback: _.bind(this.onManageTags, this)
+								}
+							])
 						})
 
 						return menuOptions;
@@ -390,7 +395,7 @@ function injectedJs() {
 					b.sortPlaylistbyReleaseDate = function() {
 						R.enhancer.getTracks(function(tracks) {
 							var album_keys = [];
-							var results = {};
+							var results:any = {};
 							jQuery.each(tracks, function(index, value) {
 								var album_key = value.attributes.source.attributes.albumKey;
 								if(album_keys.indexOf(album_key) === -1) {
@@ -420,7 +425,7 @@ function injectedJs() {
 
 					b.sortPlaylistbyPlayCount = function() {
 						R.enhancer.getTracks(function(tracks) {
-							var results = {};
+							var results: any = {};
 							R.Api.request({
 								method: "get",
 								content: {
@@ -636,7 +641,7 @@ function injectedJs() {
 							(function() {
 
 								var item = $('<li class="option truncated_line">Unavailable Albums</li>'),
-									spinner = new R.Components.Spinner();
+									spinner = new R.Components.Spinner(),
 									template = _.template(''
 										+ '<div class="album">'
 										+ '<div class="album_name"><a href="<%= albumUrl %>"><%= name %></a></div>'
@@ -1161,7 +1166,7 @@ function injectedJs() {
 				}
 				else {
 					// This else is temporary to not lose data from the old tag saving. This will be removed eventually once enough time has passed to ensure all tags are upgraded.
-					var value = window.localStorage[tag];
+					value = window.localStorage[tag];
 					if (value) {
 						window.localStorage["/enhancer/tags/tag/" + tag] = value;
 						window.localStorage.removeItem(tag)
@@ -1180,7 +1185,7 @@ function injectedJs() {
 				}
 				else {
 					// This else is temporary to not lose data from the old tag saving. This will be removed eventually once enough time has passed to ensure all tags are upgraded.
-					var value = window.localStorage[albumKey];
+					value = window.localStorage[albumKey];
 					if (value) {
 						window.localStorage["/enhancer/tags/ablum/" + albumKey] = value;
 						window.localStorage.removeItem(albumKey)
@@ -1199,7 +1204,7 @@ function injectedJs() {
 				// For every tags, add the album key to it's list of albums
 				// This will facilitate ease & speed of search by tag
 				_.each(tags, _.bind(function(tag) {
-					var albumsForTag = window.localStorage[tag];
+					var albumsForTag: any = window.localStorage[tag];
 					albumsForTag ? albumsForTag = JSON.parse(albumsForTag) : albumsForTag = [];
 
 					if (!_.contains(albumsForTag, albumKey)) {
