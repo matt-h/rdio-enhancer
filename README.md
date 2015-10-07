@@ -23,7 +23,16 @@ Current Features
 Contributing
 ================
 
-Please edit the `rdio-enhancer.ts` file which is a [TypeScript](http://www.typescriptlang.org/) file. Compile your changes with `tsc rdio-enhancer.ts` and create a pull request.
+Please edit the `rdio-enhancer.ts` file which is a [TypeScript](http://www.typescriptlang.org/) file.
+
+Create a pull request with any changes for review.
+
+Development
+================
+
+  - Clone or Fork the Repositor
+  - Compile the [TypeScript](http://www.typescriptlang.org/) file with the `tsc` command.
+  - Load the extension in [Developer Mode](https://developer.chrome.com/extensions/getstarted#unpacked)
 
 
 Changelog

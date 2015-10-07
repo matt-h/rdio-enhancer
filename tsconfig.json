@@ -1,1 +1,9 @@
-{}
+{
+	"compilerOptions": {
+		"out": "rdio-enhancer.js",
+		"sourceMap": true
+	},
+	"files": [
+		"rdio-enhancer.ts"
+	]
+}

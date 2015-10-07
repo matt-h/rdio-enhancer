@@ -13,6 +13,9 @@ fi
 
 echo "Releasing version ${version}"
 
+echo "Compiling TypeScript"
+tsc
+
 echo "Setting version number in manifest.json"
 sed -i "s/\"version\":.*/\"version\": \"${version}\"/" manifest.json
 
