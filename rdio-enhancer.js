@@ -189,7 +189,7 @@ function injectedJs() {
 					b._getAttributes = function() {
 						var parent_get_attributes = R.Components.Dialog.EditPlaylistDialog.Rdio.callSuper(this, "_getAttributes");
 						if (this.model.isNew()) {
-							var track_list = [],
+							var track_list = "",
 								source_model = this.options.sourceModel;
 							if (source_model) {
 								var model_type = source_model.get("type");
@@ -254,6 +254,7 @@ function injectedJs() {
 
 						menuOptions.push({
 							label: "Tags",
+							value: "tags",
 							visible: this.manageTagsVisible,
 							value: new Backbone.Collection([{
 													embed: true,
@@ -267,7 +268,7 @@ function injectedJs() {
 													callback: _.bind(this.onManageTags, this)
 												}])
 
-						});
+						})
 
 						return menuOptions;
 					};
@@ -648,16 +649,16 @@ function injectedJs() {
 								item.on('click', function(event) {
 
 									R.loader.load(["Dialog"], function() {
-
+										
 										var dialog = new R.Components.Dialog({
 											title: 'Unavailable Albums',
 											width: 550,
 											extraClassName: 'unavailable_dialog',
 											closeButton: 'Close'
 										});
-
+										
 										dialog.onOpen = function() {
-
+											
 											if(R.enhancer.cache['unavailable_albums']) {
 												dialog.onLoaded(R.enhancer.cache['unavailable_albums']);
 											} else {
@@ -1160,7 +1161,7 @@ function injectedJs() {
 				}
 				else {
 					// This else is temporary to not lose data from the old tag saving. This will be removed eventually once enough time has passed to ensure all tags are upgraded.
-					value = window.localStorage[tag];
+					var value = window.localStorage[tag];
 					if (value) {
 						window.localStorage["/enhancer/tags/tag/" + tag] = value;
 						window.localStorage.removeItem(tag)
@@ -1179,7 +1180,7 @@ function injectedJs() {
 				}
 				else {
 					// This else is temporary to not lose data from the old tag saving. This will be removed eventually once enough time has passed to ensure all tags are upgraded.
-					value = window.localStorage[albumKey];
+					var value = window.localStorage[albumKey];
 					if (value) {
 						window.localStorage["/enhancer/tags/ablum/" + albumKey] = value;
 						window.localStorage.removeItem(albumKey)
