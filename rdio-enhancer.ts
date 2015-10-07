@@ -191,7 +191,7 @@ function injectedJs() {
 					b._getAttributes = function() {
 						var parent_get_attributes = R.Components.Dialog.EditPlaylistDialog.Rdio.callSuper(this, "_getAttributes");
 						if (this.model.isNew()) {
-							var track_list: any = "",
+							var track_list = [],
 								source_model = this.options.sourceModel;
 							if (source_model) {
 								var model_type = source_model.get("type");
