@@ -20,6 +20,11 @@ Current Features
 	* Fork Playlist
 	* Add playlists to other playlists
 
+Contributing
+================
+
+Please edit the `rdio-enhancer.ts` file which is a [TypeScript](http://www.typescriptlang.org/) file. Compile your changes with `tsc rdio-enhancer.ts` and create a pull request.
+
 
 Changelog
 ================
