@@ -30,8 +30,12 @@ Create a pull request with any changes for review.
 Development
 ================
 
-  - Clone or Fork the Repositor
-  - Compile the [TypeScript](http://www.typescriptlang.org/) file with the `tsc` command.
+  - Clone or fork the repository
+  - Compile the [TypeScript](http://www.typescriptlang.org/) file
+    - *Editors*:
+      - [Atom](https://atom.io/)'s [atom-typescript](https://atom.io/packages/atom-typescript) package is an easy, cross-platform, way to get started
+      - [Visual Studio Code](https://code.visualstudio.com/) is cross-platform with native TypeScript support
+    - *Commandline*: Use the `tsc` command
   - Load the extension in [Developer Mode](https://developer.chrome.com/extensions/getstarted#unpacked)
 
 
