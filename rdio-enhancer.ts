@@ -113,7 +113,9 @@ function injectedJs() {
 						{
 							label: t('Copy link'),
 							context: this,
-							callback: function() { R.enhancer.copyText(this.model.get('shortUrl')); },
+							callback: function() {
+								R.enhancer.copyText(this.model.get('shortUrl'));
+							},
 							extraClassNames: 'share copy_link',
 							value: 'copy_link'
 						},
@@ -121,8 +123,12 @@ function injectedJs() {
 							label: t('Share options'),
 							context: this,
 							callback: function() {
-								if (this._shareButtonMenu) this._shareButtonMenu.destroy();
-								if (this.menu) this.menu.destroy();
+								if ( this._shareButtonMenu ) {
+									this._shareButtonMenu.destroy();
+								}
+								if ( this.menu ) {
+									this.menu.destroy();
+								}
 								this._doShare();
 							},
 							extraClassNames: 'share',
