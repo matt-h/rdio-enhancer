@@ -120,7 +120,11 @@ function injectedJs() {
 						{
 							label: t('Share options'),
 							context: this,
-							callback: function() { this._shareButtonMenu.destroy(); this._doShare(); },
+							callback: function() {
+								if (this._shareButtonMenu) this._shareButtonMenu.destroy();
+								if (this.menu) this.menu.destroy();
+								this._doShare();
+							},
 							extraClassNames: 'share',
 							value: null
 						}
