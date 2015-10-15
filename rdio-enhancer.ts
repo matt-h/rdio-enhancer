@@ -872,6 +872,62 @@ function injectedJs() {
 			}
 		},
 
+		/**
+		 * Show yourself in the listeners badges
+		 */
+		inject_hasListened: function inject_extras(args): boolean {
+			var didModify = false;
+			// Adding has listened for favorites isn't very useful
+			if (args.method === 'getFavorites') return didModify;
+			try {
+				if (args.content) {
+					if (_.isArray(args.content.extras) && args.content.extras.length) {
+						if (!_.isObject(args.content.extras[0])) {
+							args.content.extras.push('hasListened');
+						} else {
+							args.content.extras.push({ 'field': 'hasListened' });
+						}
+						didModify = true;
+					} else {
+						args.content.extras = args.content.extras || [];
+						args.content.extras.push({ 'field': 'hasListened' });
+						didModify = true;
+					}
+				}
+				if (didModify) {
+					R.enhancer.inject_dataFilter(args);
+				}
+			}
+			catch (e) {
+				// noop
+			}
+			return didModify;
+		},
+
+		inject_dataFilter: (obj) => {
+			obj.dataFilter = (data) => {
+				try {
+					data = JSON.parse(data);
+					switch ((data && data.result) ? data.result.type : '') {
+						case 'list':
+							_.each(data.result.items, (item: any, idx, list) => {
+								if (item.hasListened) {
+									item.networkConsumers.total = item.networkConsumers.items.unshift(R.currentUser.toJSON());
+								}
+							});
+							break;
+						default:
+							break;
+					}
+					return JSON.stringify(data);
+				}
+				catch (e) {
+					// noop
+				}
+				return data;
+			};
+		},
+
 		overwrite_request: function() {
 			if(R.Api && R.Api.origRequest) {
 				// Safety check so this can't be called twice.
@@ -887,6 +943,8 @@ function injectedJs() {
 			R.Api.request = function() {
 				var args = arguments[0];
 				//R.enhancer.log(arguments);
+
+				R.enhancer.inject_hasListened(args);
 
 				// The Create/Add to playlist normally only takes one track and puts it in an array.
 				// If we pass an array as the key this catches the array properly and formats it for the request.
