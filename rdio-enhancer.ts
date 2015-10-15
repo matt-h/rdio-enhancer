@@ -1,4 +1,4 @@
-declare var R, $, jQuery, t, Backbone, _, Notification, webkitNotifications, player_model, chrome;
+declare var R, t, player_model, Notification, webkitNotifications, chrome;
 
 function codeToString(f) {
 	var args = [];
@@ -11,6 +11,30 @@ function codeToString(f) {
 function injectedJs() {
 	// Used to store play next items
 	var play_next_queue = [];
+
+	var WEB_SERVICE_TYPES = {
+	  ALBUM: 'a',
+	  ALBUM_STATION: 'ar',
+	  ARIST: 'r',
+	  ARTIST_STATION: 'rr',
+	  ARTIST_TOP_SONGS_STATION: 'tr',
+	  AUTOPLAY_STATION: 'ap',
+	  CATEGORY: 'tpc',
+	  COLLECTION_ALBUM: 'al',
+	  COLLECTION_ARTIST: 'rl',
+	  GENRE_STATION: 'gr',
+	  HEAVY_ROTATION_STATION: 'h',
+	  HEAVY_ROTATION_USER_STATION: 'e',
+	  LABEL: 'l',
+	  LABEL_STATION: 'lr',
+	  PLAYLIST: 'p',
+	  PLAYLIST_STATION: 'pr',
+	  SONG_STATION: 'sr',
+	  TASTE_PROFILE_STATION: 'tp',
+	  TRACK: 't',
+	  USER: 's',
+	  USER_COLLECTION_STATION: 'c'
+	};
 
 	// Build the Rdio Enhancer Class
 	R.enhancer = {
@@ -248,7 +272,7 @@ function injectedJs() {
 							visible: this.playlistFeaturesVisible
 						});
 
-						var tags = [];
+						var tags: any = [];
 						_.each(R.enhancer.getTagsForAlbum(this.model.get("albumKey")), _.bind(function(tag) {
 							tags.push({
 								label: tag,
@@ -309,7 +333,7 @@ function injectedJs() {
 
 								// Save the tags when the user click on confirm
 								this.$(".footer .blue").on("click", _.bind(function() {
-									var tags = _.map(this.$(".body .tags").val().trim().split(","), function(tag) { return tag.trim(); });
+									var tags = _.map(this.$(".body .tags").val().trim().split(","), function(tag: string) { return tag.trim(); });
 
 									// Compare with previously set tags - might need to remove some
 									var previousTags = R.enhancer.getTagsForAlbum(that.model.get("albumKey"));
