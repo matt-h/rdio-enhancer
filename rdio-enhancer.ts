@@ -830,6 +830,27 @@ function injectedJs() {
 					};
 				}
 
+				if(a == "Catalog2014.Album") {
+					b.orig_onInserted = b.onInserted;
+					b.onInserted = function() {
+						b.orig_onInserted.call(this);
+						this.trigger('Catalog2014.Album:inserted');
+					}
+				}
+
+				if(a == "TrackList") {
+					b.orig_onRendered = b.onRendered;
+					b.onRendered = function() {
+						b.orig_onRendered.call(this);
+						if (this.options.highlightTrack && this.parent() instanceof R.Components.Catalog2014.Album) {
+							this.listen(this.parent(), "Catalog2014.Album:inserted", () => {
+								this.$('.url_highlighted a').focus();
+								console.debug('parent inserted!');
+							});
+						}
+					}
+				}
+
 				return R.Component.orig_create.call(this, a,b,c);
 			};
 		},
