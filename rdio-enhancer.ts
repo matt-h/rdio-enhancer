@@ -250,11 +250,6 @@ function injectedJs() {
 						return parent_get_attributes;
 					}
 				}
-				if(a == "Dialog.EditPlaylistDialog") {
-				}
-				if(a == "TrackList") {
-
-				}
 
 				if(a == "ActionMenu") {
 					b.orig_getMenuOptions = b.getMenuOptions;
@@ -744,6 +739,95 @@ function injectedJs() {
 						}
 						b.orig_ensureItemsLoaded.call(this);
 					}
+				}
+
+				// Create playlists based on an artist's top tracks
+				if(a == "Catalog.Artist.Songs") {
+					b.orig_events = b.events || null;
+					b.events = function() {
+						var local_events = b.orig_events ? b.orig_events.call(this) : {};
+						local_events["click .artist_tracks_to_playlist"] = "onArtistTracksToPlaylistClicked";
+						return local_events;
+					};
+
+					b.onArtistTracksToPlaylistClicked = function(event) {
+						this.artistTracksToPlaylistMenu.open();
+						R.Utils.stopEvent(event);
+					};
+
+					b.onArtistTracksToPlaylistOptionSelected = function(menuItem) {
+						var count = menuItem.get('value'),
+							artistKey = this.model.get('key'),
+							maxArtistTracks = this.model.get('length'),
+							playlistName = this.model.get('name') + ' Top Tracks',
+							tracksToAdd,
+							getTracks,
+							createPlaylist;
+						createPlaylist = (tracksToAdd) => {
+							return R.Api.request({
+								method: "createPlaylist",
+								content: { name: playlistName, description: playlistName, tracks: tracksToAdd },
+								success: function() {
+									R.enhancer.show_message('Playlist created.', true);
+								},
+								error: function() {
+									R.enhancer.show_message('There was an error creating an artist playlist.', true);
+								}
+							});
+						}
+						R.Api.request({
+							method: "getTracksForArtist",
+							content: { artist: artistKey, count: count, extras: ['-*', 'key'] },
+							success: (response) => {
+								if(response.status != 'ok') {
+									R.enhancer.show_message('There was an error getting tracks for this artist.', true);
+									return;
+								}
+								tracksToAdd = _.pluck(response.result.items, 'key');
+								createPlaylist(tracksToAdd);
+							},
+							error: () => {
+								R.enhancer.show_message('There was an error getting tracks for this artist.', true);
+							}
+						});
+					};
+
+					b.getMenuOptions = (maxTracks) => {
+						var sizeChoices = _.filter([10, 100, 250, 500, 1000], (num) => { return num <= maxTracks }),
+							menuOptions = new Backbone.Collection([]),
+							cur,
+							createMenuItem;
+						createMenuItem = (val) => {
+							return {
+								label: 'Add Top ' + val,
+								value: val,
+								callback: b.onArtistTracksToPlaylistOptionSelected,
+								extraClassNames: 'playlist'
+							};
+						};
+						while (sizeChoices.length) {
+							cur = sizeChoices.shift();
+							menuOptions.push(createMenuItem(cur));
+						}
+						menuOptions.push(createMenuItem(maxTracks));
+						return menuOptions;
+					};
+
+					b.orig_onRendered = b.onRendered || R.doNothing;
+					b.onRendered = function() {
+						b.orig_onRendered.call(this);
+						this.$(".SortControls").append('<div class="artist_tracks_to_playlist"></div>');
+						var $artistTracksToPlaylistMenuEl = this.$(".artist_tracks_to_playlist"),
+							artistMaxTracks = this.model.get('length'),
+							menuOptionsModel = b.getMenuOptions(artistMaxTracks);
+
+						this.artistTracksToPlaylistMenu = this.addChild(new R.Components.Menu({
+							positionOverEl: $artistTracksToPlaylistMenuEl,
+							positionUnder: false,
+							model: menuOptionsModel,
+							defaultContext: this
+						}));
+					};
 				}
 
 				return R.Component.orig_create.call(this, a,b,c);

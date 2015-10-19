@@ -162,3 +162,20 @@
 .Menu li.share.copy_link {
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAMAAABFNRROAAAABGdBTUEAALGPC/xhBQAAAIpQTFRFuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJuMPJAAAAuMPJkvC3mwAAAC10Uk5T9mM8pbFOrqKZZsMVVPAzVznb4QN7YPPG3kKE+fzn5Ku0Gx4MvVF4JAYJdY0A/S76QAAAAHtJREFUCNctzFcWwjAMRFHRO6Gmh1Q7sa3Z//YQEfq7R+cNsV4Xdn5iUmQxgONTdYqx2qQ4qNw6Z15gP8tsE+tcAv+TlYaWA9Je9ELhvRnwGWXToohq+QqY2rI8u3BB3UlDBg3zGNp5m26orlmFt4oHadBMf/Xhcc8V/AVvFxghUQadAAAAAABJRU5ErkJggg==);
 }
+
+.artist_tracks_to_playlist {
+	float: right;
+	margin-right: 10px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAUCAMAAAC+oj0CAAAABGdBTUEAALGPC/xhBQAAAD9QTFRFlJmclJiclJmclJmclJmdlJmclJiclJmclJmclJmclJiclJmclJmclJmclJmclJmcAAAAlJmdlZmdlJiclJmcCxAmtwAAABF0Uk5TmhBwEJkP9O7075n1ynEGywDZOPyuAAAAd0lEQVQY05WO4RKDIAyDcc6pQy2SvP+zruDJUXV3ml/la0jjQhYZKoFuH2rMHTNe4z9uXOJDNhzBlUXFjfTKC51w8+SjgrDuaN3LPH2G6XUI6UQLxVTJ1Z+/pb/BPUCc8ZiR7laD3xtWanArW7I0BmtB8V7mJfwAFT8ct1xKBKUAAAAASUVORK5CYII=);
+	height: 28px;
+	width: 28px;
+	border-radius: 50%;
+	border: 1px solid #c9cccd;
+	background-size: auto 10px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+.artist_tracks_to_playlist:hover {
+	border-color: #94999c;
+}
