@@ -845,7 +845,6 @@ function injectedJs() {
 						if (this.options.highlightTrack && this.parent() instanceof R.Components.Catalog2014.Album) {
 							this.listen(this.parent(), "Catalog2014.Album:inserted", () => {
 								this.$('.url_highlighted a').focus();
-								console.debug('parent inserted!');
 							});
 						}
 					}
