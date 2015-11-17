@@ -42,6 +42,14 @@ Development
 Changelog
 ================
 
+v 2.10
+
+* New
+
+	* Show Has Listened in Albums/Stations [Ryan Nauman](https://github.com/ryan-nauman) [#61](https://github.com/matt-h/rdio-enhancer/pull/61)
+	* Add artist top tracks to playlist feature [Ryan Nauman](https://github.com/ryan-nauman) [#62](https://github.com/matt-h/rdio-enhancer/pull/62)
+	* Scroll to hightlighted track on shared link [Ryan Nauman](https://github.com/ryan-nauman) [#63](https://github.com/matt-h/rdio-enhancer/pull/63)
+
 v 2.9
 
 * New
