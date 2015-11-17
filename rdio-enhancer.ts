@@ -617,9 +617,10 @@ function injectedJs() {
 					b.onRendered = function() {
 						b.orig_onRendered.call(this);
 
-						this.$(".section_header").append('<button type="button" class="button exportToCSV with_text">Export to CSV</button>');
+						this.$(".section_header").append('<span class="export_to_csv_box">Start Export #: <input type="text" class="export_start" value="0"> <button type="button" class="button exportToCSV with_text">Export to CSV</button></span>');
 						this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div></span>');
 						this.$(".exportToCSV").on("click", function(e) {
+							var start = parseInt( jQuery(".export_start").val() );
 							R.enhancer.getFavoriteTracks(function(tracks) {
 								var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
 								var keys = ["name", "artist", "album", "trackNum"];
@@ -636,7 +637,7 @@ function injectedJs() {
 								pom.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv.join("\n")));
 								pom.setAttribute('download', 'collection.csv');
 								pom.click();
-							});
+							}, start);
 						});
 						this.$(".tags_filter").on("keyup", _.bind(function() {
 							var value = this.$(".tags_filter").val().trim();
@@ -1094,12 +1095,12 @@ function injectedJs() {
 			);
 		},
 
-		getFavoriteTracks: function(callback) {
+		getFavoriteTracks: function(callback, start) {
 			R.enhancer.show_message('Fetching Favorites data... Please wait. If your Favorites is large this can take awhile.', true);
-			R.enhancer._getFavoriteTracks(callback, [], 0, 0);
+			R.enhancer._getFavoriteTracks(callback, [], 0, start, start);
 		},
 
-		_getFavoriteTracks: function(callback, tracks, offset, start) {
+		_getFavoriteTracks: function(callback, tracks, offset, start, origstart) {
 			R.Api.request({
 				method: "getTracksInCollection",
 				content: {
@@ -1108,16 +1109,16 @@ function injectedJs() {
 				},
 				success: function(success_data) {
 					tracks = tracks.concat(success_data.result.items);
-					if(success_data.result.total > tracks.length) {
+					if(success_data.result.total > tracks.length + origstart) {
 						if ( tracks.length >= 15000 ) {
 							callback(tracks);
 							var newstart = start + tracks.length;
 							tracks = []; // Clear out tracks to preserve memory
 							R.enhancer.show_message('You have a large amount of tracks, multiple CSV files will be downloaded.', true);
-							R.enhancer._getFavoriteTracks(callback, [], 0, newstart);
+							R.enhancer._getFavoriteTracks(callback, [], 0, newstart, newstart);
 						}
 						else {
-							R.enhancer._getFavoriteTracks(callback, tracks, tracks.length, start);
+							R.enhancer._getFavoriteTracks(callback, tracks, tracks.length, start, origstart);
 						}
 					}
 					else {

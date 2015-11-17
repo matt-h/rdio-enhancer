@@ -116,12 +116,19 @@
 	margin: 2px 10px 0 0;
 }
 
-.section_header .exportToCSV {
+.section_header .export_to_csv_box {
 	padding: 0 12px;
 	font-size: 12px;
-	color: #008fd5;
 	float:right;
 	margin-right:5px;
+}
+.section_header .export_start {
+	width: 50px;
+	margin: 0;
+}
+.section_header .exportToCSV {
+	font-size: 12px;
+	color: #008fd5;
 }
 
 .Dialog.unavailable_dialog .album {
