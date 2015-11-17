@@ -42,6 +42,13 @@ Development
 Changelog
 ================
 
+v 2.10.1
+
+* Fixes
+
+	* Escape quotes in csv export [#65](https://github.com/matt-h/rdio-enhancer/issues/65)
+	* Fix export of larger than 30000 songs [#66](https://github.com/matt-h/rdio-enhancer/issues/66)
+
 v 2.10
 
 * New
