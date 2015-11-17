@@ -7,6 +7,8 @@ rdio enhancer
 
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SRNWTE8XDR53Q&lc=US&item_name=Matt&item_number=Rdio%20Enhancer&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
 
+Bitcoin: 1FFjtKvsn4miNmHpt9H9opM2ymNtDLtpL
+
 Current Features
 ================
 
