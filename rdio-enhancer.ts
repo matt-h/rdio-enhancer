@@ -627,7 +627,7 @@ function injectedJs() {
 								jQuery.each(tracks, function(index, track) {
 									var values = [];
 									jQuery.each(keys, function(index, key) {
-										values.push(track[key]);
+										values.push( track[key].replace('"', '""') );
 									});
 
 									csv.push('"' + values.join('","') + '"');
