@@ -42,6 +42,12 @@ Development
 Changelog
 ================
 
+v 2.10.2
+
+* Fixes
+
+	* Fix string issue in escaping quotes
+
 v 2.10.1
 
 * Fixes
