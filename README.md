@@ -45,6 +45,12 @@ Development
 Changelog
 ================
 
+v 2.10.3
+
+* Fixes
+
+	* Fix issue with escaping quotes in csv export
+
 v 2.10.2
 
 * Fixes
