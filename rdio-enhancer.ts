@@ -573,10 +573,16 @@ function injectedJs() {
 						R.enhancer.getTracks(function(tracks) {
 							var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
 							var keys = ["name", "artist", "album", "trackNum"];
+							var regex = new RegExp('"', 'g');
 							jQuery.each(tracks, function(index, track) {
 								var values = [];
 								jQuery.each(keys, function(index, key) {
-									values.push(track.attributes.source.attributes[key]);
+									if( typeof track.attributes.source.attributes[key] === 'number' ) {
+										values.push( track.attributes.source.attributes[key] );
+									}
+									else {
+										values.push( track.attributes.source.attributes[key].replace(regex, '""') );
+									}
 								});
 
 								csv.push('"' + values.join('","') + '"');
@@ -621,6 +627,7 @@ function injectedJs() {
 						this.$(".header").append('<span class="filter_container"><div class="TextInput filter"><input class="tags_filter unstyled" placeholder="Filter By Tag" name="" type="text" value=""></div></span>');
 						this.$(".exportToCSV").on("click", function(e) {
 							var start = parseInt( jQuery(".export_start").val() );
+							var regex = new RegExp('"', 'g');
 							R.enhancer.getFavoriteTracks(function(tracks) {
 								var csv = [["Name", "Artist", "Album", "Track Number"].join(",")];
 								var keys = ["name", "artist", "album", "trackNum"];
@@ -631,7 +638,7 @@ function injectedJs() {
 											values.push( track[key] );
 										}
 										else {
-											values.push( track[key].replace('"', '""') );
+											values.push( track[key].replace(regex, '""') );
 										}
 									});
 
