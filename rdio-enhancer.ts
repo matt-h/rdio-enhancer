@@ -1,4 +1,4 @@
-declare var R, t, player_model, Notification, webkitNotifications, chrome;
+declare var R, t, player_model, Notification, webkitNotifications, chrome, Backbone, jQuery, _, $;
 
 function codeToString(f) {
 	var args = [];
